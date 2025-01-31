@@ -12,7 +12,7 @@ tasks:
       - |
         docker build \
           --build-arg GO_SVC_PATHS=. \
-          --build-arg SERVICE_NAME=auth_service \
+          --build-arg SERVICE_NAME=link_service \
           --build-arg VERSION=1.0.0 \
           -t auth_service:1.0.0 .
 

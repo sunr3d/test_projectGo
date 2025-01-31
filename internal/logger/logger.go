@@ -55,7 +55,7 @@ func NewZapLogger(logLevel string) *zap.Logger {
 		Sampling:         nil,
 		Encoding:         "json",
 		EncoderConfig:    encoderConfig,
-		OutputPaths:      []string{"app.log"},
+		OutputPaths:      []string{"stderr"},
 		ErrorOutputPaths: []string{"stderr"},
 	}
 
