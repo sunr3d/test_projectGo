@@ -4,16 +4,20 @@ import (
 	"fmt"
 	"go.uber.org/zap" // logger
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health/grpc_health_v1"
 	"link_service/internal/config"
-	//"link_service/internal/handlers"
+	"link_service/internal/handlers/health_handler"
 	"net"
 )
 
 func Run(cfg *config.Config, logger *zap.Logger) error {
 	grpcServer := grpc.NewServer()
 
-	// TODO: Регистрация сервисов, первый должен быть HealthCheck
+	// Регистрация сервиса health
+	healthService := health_handler.NewHealthService()
+	grpc_health_v1.RegisterHealthServer(grpcServer, healthService)
 
+	// Само поднятие сервера
 	address := fmt.Sprintf(":%s", cfg.GRPCPort)
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
