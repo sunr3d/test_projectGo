@@ -26,14 +26,16 @@ func Run(cfg *config.Config, logger *zap.Logger) error {
 		return fmt.Errorf("failed to listen on address %s: %w\n", address, err)
 	}
 
-	if err = grpcServer.Serve(listener); err != nil {
-		return fmt.Errorf("failed to serve: %w", err)
-	}
-	logger.Info("gRPC server started successfully",
+	logger.Info("gRPC server start",
 		zap.String("address", "localhost:"),
 		zap.String("port", cfg.GRPCPort),
 		zap.String("version", cfg.Version),
 	)
+
+	if err = grpcServer.Serve(listener); err != nil {
+		return fmt.Errorf("failed to serve: %w", err)
+	}
+
 	return nil
 
 }
