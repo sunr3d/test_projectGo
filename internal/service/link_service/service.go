@@ -12,8 +12,11 @@ var _ services.Service = (*service)(nil)
 
 type service struct {
 	logger zap.Logger
+	repo   infra.Database
+}
 
-	repo infra.Database
+func NewService(logger zap.Logger, repo infra.Database) services.Service {
+	return &service{logger: logger, repo: repo}
 }
 
 func (s *service) Create(ctx context.Context, link services.InputLink) error {
