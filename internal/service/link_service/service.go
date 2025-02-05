@@ -1,4 +1,4 @@
-package link_srevice
+package link_service
 
 import (
 	"context"
@@ -21,6 +21,6 @@ func (s *service) Create(ctx context.Context, link services.InputLink) error {
 	if err != nil {
 		return errors.New("ALREADY IN USE")
 	}
-	err = s.repo.Create()
+	err = s.repo.Create(ctx, infra.InputLink(link))
 	return err
 }
