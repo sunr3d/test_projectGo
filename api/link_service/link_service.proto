@@ -7,6 +7,7 @@ option go_package = "/link_service;link_service";
 
 service LinkService {
   rpc GetLink(GetLinkRequest) returns (GetLinkResponse);
+  rpc ...
 }
 
 message GetLinkRequest {
@@ -15,4 +16,12 @@ message GetLinkRequest {
 
 message GetLinkResponse {
   string link = 1;
+}
+
+message AddLinkRequest {
+
+}
+
+message AddLinkResponse {
+
 }
