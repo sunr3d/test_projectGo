@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package link_service;
+
+option go_package = "/link_service;link_service";
+
+message GetLinkRequest {
+  string link = 1;
+}
+
+message GetLinkResponse {
+  string link = 1;
+}
