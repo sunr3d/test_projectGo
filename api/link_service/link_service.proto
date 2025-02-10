@@ -2,7 +2,12 @@ syntax = "proto3";
 
 package link_service;
 
+
 option go_package = "/link_service;link_service";
+
+service LinkService {
+  rpc GetLink(GetLinkRequest) returns (GetLinkResponse);
+}
 
 message GetLinkRequest {
   string link = 1;
