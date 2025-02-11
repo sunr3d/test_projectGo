@@ -31,5 +31,13 @@ func (s *service) Create(ctx context.Context, link services.InputLink) (int, err
 
 	id, err = s.repo.Create(ctx, infra.InputLink(link))
 
-	return id, err
+	return id, nil
+}
+
+func (s *service) Find(ctx context.Context, fakeLink string) (string, error) {
+	link, err := s.repo.Find(ctx, fakeLink)
+	if err != nil {
+		return "", err
+	}
+	return link, nil
 }

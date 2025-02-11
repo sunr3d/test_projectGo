@@ -13,4 +13,5 @@ type InputLink struct {
 
 type Service interface {
 	Create(ctx context.Context, link InputLink) (int, error)
+	Find(ctx context.Context, fakeLink string) (string, error)
 }
