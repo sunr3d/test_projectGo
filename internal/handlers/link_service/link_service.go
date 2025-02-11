@@ -17,8 +17,11 @@ func NewLinkService(service services.Service) *LinkService {
 }
 
 func (ls *LinkService) GetLink(ctx context.Context, req *pb.GetLinkRequest) (*pb.GetLinkResponse, error) {
-	// Реализация метода по получению данных о fakeLink из БД
-	return &pb.GetLinkResponse{Link: "PLACEHOLDER"}, nil
+	link, err := ls.service.Find(ctx, req.Link)
+	if err != nil {
+		return &pb.GetLinkResponse{Link: "Link not found."}, err
+	}
+	return &pb.GetLinkResponse{Link: link}, nil
 }
 
 func (ls *LinkService) InputLink(ctx context.Context, req *pb.InputLinkRequest) (*pb.InputLinkResponse, error) {
