@@ -19,11 +19,11 @@ type PostgresDB struct {
 func NewPostgresDB(dsn string) (*PostgresDB, error) {
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	if err = db.Ping(); err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &PostgresDB{db: db}, nil
@@ -31,7 +31,7 @@ func NewPostgresDB(dsn string) (*PostgresDB, error) {
 
 func (p *PostgresDB) Find(ctx context.Context, fakeLink string) (string, error) {
 	var link string
-	stmt, err := p.db.Prepare("SELECT link FROM links WHERE fake_link = ?")
+	stmt, err := p.db.PrepareContext(ctx, "SELECT link FROM links WHERE fake_link = ?")
 	if err != nil {
 		return "", status.Error(codes.Internal, err.Error())
 	}
@@ -48,22 +48,23 @@ func (p *PostgresDB) Find(ctx context.Context, fakeLink string) (string, error) 
 	return link, nil
 }
 
-func (p *PostgresDB) Create(ctx context.Context, link infra.InputLink) error {
-	stmt, err := p.db.Prepare("INSERT INTO links (link, fake_link, erase_time) VALUES (?,?,?)")
+func (p *PostgresDB) Create(ctx context.Context, link infra.InputLink) (int, error) {
+	id := 0
+	stmt, err := p.db.PrepareContext(ctx, "INSERT INTO links (link, fake_link, erase_time) VALUES (?,?,?) RETURNING id")
 	if err != nil {
-		return status.Error(codes.Internal, err.Error())
+		return 0, status.Error(codes.Internal, err.Error())
 	}
 	defer stmt.Close()
 
-	_, err = stmt.ExecContext(
+	err = stmt.QueryRowContext(
 		ctx,
 		link.Link,
 		link.FakeLink,
 		link.EraseTime,
-	)
+	).Scan(&id)
 	if err != nil {
-		return status.Error(codes.Internal, err.Error())
+		return 0, status.Error(codes.Internal, err.Error())
 	}
 
-	return nil
+	return id, nil
 }
