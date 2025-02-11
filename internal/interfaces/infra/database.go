@@ -12,6 +12,6 @@ type InputLink struct {
 }
 
 type Database interface {
-	Find(ctx context.Context, link string) (string, error)
+	Find(ctx context.Context, fakeLink string) (string, error)
 	Create(ctx context.Context, link InputLink) (int, error)
 }
