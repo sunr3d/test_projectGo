@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"database/sql"
-	"link_service/internal/interfaces/infra"
 )
 
 //var _ postgres.Chats = (*impl)(nil)
@@ -12,7 +11,7 @@ type PostgresDB struct {
 }
 
 // Инициализация БД с проверкой соединения
-func NewPostgresDB(dsn string) (infra.Database, error) {
+func NewPostgresDB(dsn string) (*PostgresDB, error) {
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		return nil, err
