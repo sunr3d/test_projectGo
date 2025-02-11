@@ -5,7 +5,7 @@ import (
 	"link_service/internal/interfaces/infra"
 )
 
-var _ postgres.Chats = (*impl)(nil)
+//var _ postgres.Chats = (*impl)(nil)
 
 type PostgresDB struct {
 	db *sql.DB
