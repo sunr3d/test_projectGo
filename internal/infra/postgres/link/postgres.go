@@ -52,7 +52,7 @@ func (p *PostgresDB) Create(ctx context.Context, link infra.InputLink) (int, err
 	id := 0
 	stmt, err := p.db.PrepareContext(ctx, "INSERT INTO links (link, fake_link, erase_time) VALUES (?,?,?) RETURNING id")
 	if err != nil {
-		return 0, status.Error(codes.Internal, err.Error())
+		return id, status.Error(codes.Internal, err.Error())
 	}
 	defer stmt.Close()
 
@@ -63,7 +63,7 @@ func (p *PostgresDB) Create(ctx context.Context, link infra.InputLink) (int, err
 		link.EraseTime,
 	).Scan(&id)
 	if err != nil {
-		return 0, status.Error(codes.Internal, err.Error())
+		return id, status.Error(codes.Internal, err.Error())
 	}
 
 	return id, nil
