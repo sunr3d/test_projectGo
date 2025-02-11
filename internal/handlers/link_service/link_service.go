@@ -16,9 +16,12 @@ func NewLinkService(service services.Service) *LinkService {
 }
 
 func (ls *LinkService) GetLink(ctx context.Context, req *pb.GetLinkRequest) (*pb.GetLinkResponse, error) {
-	return nil, nil
+	// Реализация метода по получению данных о fakeLink из БД
+	return &pb.GetLinkResponse{Link: "PLACEHOLDER"}, nil
 }
 
 func (ls *LinkService) InputLink(ctx context.Context, req *pb.InputLinkRequest) (*pb.InputLinkResponse, error) {
-	return nil, nil
+	// Реализация метода по добавлению данных в БД
+	id := "0" // PLACEHOLDER
+	return &pb.InputLinkResponse{Success: true, Message: "Link successfully added.", Id: id}, nil
 }
