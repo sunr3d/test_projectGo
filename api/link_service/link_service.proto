@@ -2,12 +2,13 @@ syntax = "proto3";
 
 package link_service;
 
+import "google/protobuf/timestamp.proto"; // для поля EraseTime
 
 option go_package = "/link_service;link_service";
 
 service LinkService {
   rpc GetLink(GetLinkRequest) returns (GetLinkResponse);
-  rpc ...
+  rpc InputLink(InputLinkRequest) returns (InputLinkResponse);
 }
 
 message GetLinkRequest {
@@ -18,10 +19,14 @@ message GetLinkResponse {
   string link = 1;
 }
 
-message AddLinkRequest {
-
+message InputLinkRequest {
+  string link = 1;
+  string fakeLink = 2;
+  google.protobuf.Timestamp eraseTime = 3;
 }
 
-message AddLinkResponse {
-
+message InputLinkResponse {
+  bool success = 1;
+  string message = 2;
+  string id = 3;
 }
