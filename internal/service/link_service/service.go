@@ -19,11 +19,17 @@ func NewService(logger zap.Logger, repo infra.Database) services.Service {
 	return &service{logger: logger, repo: repo}
 }
 
-func (s *service) Create(ctx context.Context, link services.InputLink) error {
-	err := s.repo.Find(ctx, link.FakeLink)
+func (s *service) Create(ctx context.Context, link services.InputLink) (int, error) {
+	var id int
+	linkFound, err := s.repo.Find(ctx, link.FakeLink)
 	if err != nil {
-		return errors.New("ALREADY IN USE")
+		return id, err
 	}
-	err = s.repo.Create(ctx, infra.InputLink(link))
-	return err
+	if linkFound != "" {
+		return id, errors.New("link already exists")
+	}
+
+	id, err = s.repo.Create(ctx, infra.InputLink(link))
+
+	return id, err
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"link_service/internal/interfaces/services"
 	pb "link_service/proto/link_service"
+	"strconv"
 )
 
 type LinkService struct {
@@ -27,16 +28,18 @@ func (ls *LinkService) InputLink(ctx context.Context, req *pb.InputLinkRequest) 
 		EraseTime: req.EraseTime.AsTime(),
 	}
 
-	if err := ls.service.Create(ctx, inputLink); err != nil {
+	id, err := ls.service.Create(ctx, inputLink)
+	if err != nil {
 		return &pb.InputLinkResponse{
 			Success: false,
 			Message: err.Error(),
-			Id:      "",
+			Id:      "n/a",
 		}, err
 	}
+
 	return &pb.InputLinkResponse{
 		Success: true,
 		Message: "Link successfully added.",
-		Id:      "PLACEHOLDER_ID",
+		Id:      strconv.Itoa(id),
 	}, nil
 }
