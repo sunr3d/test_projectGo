@@ -40,7 +40,7 @@ func (p *PostgresDB) Find(ctx context.Context, fakeLink string) (string, error) 
 	err = stmt.QueryRowContext(ctx, fakeLink).Scan(&link)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return "", status.Errorf(codes.NotFound, "link %s not found", fakeLink)
+			return "", nil
 		}
 		return "", status.Error(codes.Internal, err.Error())
 	}
