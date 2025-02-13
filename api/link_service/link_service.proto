@@ -4,7 +4,7 @@ package link_service;
 
 import "google/protobuf/timestamp.proto"; // для поля EraseTime
 
-option go_package = "/link_service;link_service";
+option go_package = "/link_service_impl;link_service_impl";
 
 service LinkService {
   rpc GetLink(GetLinkRequest) returns (GetLinkResponse);

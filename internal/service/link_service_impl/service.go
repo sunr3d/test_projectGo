@@ -1,4 +1,4 @@
-package link_service
+package link_service_impl
 
 import (
 	"context"
@@ -11,11 +11,11 @@ import (
 var _ services.Service = (*service)(nil)
 
 type service struct {
-	logger zap.Logger
+	logger *zap.Logger
 	repo   infra.Database
 }
 
-func NewService(logger zap.Logger, repo infra.Database) services.Service {
+func New(logger *zap.Logger, repo infra.Database) services.Service {
 	return &service{logger: logger, repo: repo}
 }
 
