@@ -15,29 +15,29 @@ import (
 
 func Run(cfg *config.Config, logger *zap.Logger) error {
 
-	//infra
-	//TODO change
+	// Infra (DB)
+	// Connect to `PGSQL` w data from `cfg`
 	pg, err := postgres_impl.New(logger, cfg.Postgres)
 	if err != nil {
 		return err
 	}
 
-	//service layer
+	// Service layer
 	svc := link_service_impl.New(logger, pg)
 
-	grpcServer := server.NewServer(logger)
+	grpcServer := server.New(logger)
 	reflection.Register(grpcServer.Server) // reflection для теста ручек через `grpcurl` в терминале
 
 	// Регистрация сервиса health
-	healthService := hh.NewHealthService()
+	healthService := hh.New()
 	grpc_health_v1.RegisterHealthServer(grpcServer.Server, healthService)
 
 	// Регистрация сервиса link_service
-	linkService := lsh.NewLinkService(svc) // placeholder
+	linkService := lsh.New(svc)
 	pbls.RegisterLinkServiceServer(grpcServer.Server, linkService)
 
-	// Запуск сервераЗ
-	if err := grpcServer.Run(cfg.GRPCPort); err != nil {
+	// Запуск сервера
+	if err = grpcServer.Run(cfg.GRPCPort); err != nil {
 		return err
 	}
 
