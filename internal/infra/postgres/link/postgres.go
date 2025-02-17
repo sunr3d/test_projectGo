@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
+	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -20,8 +22,14 @@ type postgresDB struct {
 
 // Инициализация БД с проверкой соединения (конструктор)
 func New(lg *zap.Logger, cfg config.Postgres) (infra.Database, error) {
-	var dsn string
-	//TODO собрать из конфига dsn
+	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		cfg.Host,
+		cfg.Port,
+		cfg.Username,
+		cfg.Password,
+		cfg.Database,
+	)
+
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -30,9 +38,13 @@ func New(lg *zap.Logger, cfg config.Postgres) (infra.Database, error) {
 	if err = db.Ping(); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	lg.Info("connect to postgres database success")
+	lg.Info("Connect to Postgres database success")
 
 	return &postgresDB{logger: lg, db: db}, nil
+}
+
+func (p *postgresDB) Close() error {
+	return p.db.Close()
 }
 
 func (p *postgresDB) Find(ctx context.Context, fakeLink string) (string, error) {
