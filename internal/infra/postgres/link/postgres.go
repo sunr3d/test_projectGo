@@ -15,9 +15,9 @@ import (
 
 //var _ postgres.Chats = (*impl)(nil) ---- Не понимаю это
 
-type postgresDB struct {
-	logger *zap.Logger
-	db     *sql.DB
+type PostgresDB struct {
+	Logger *zap.Logger
+	Db     *sql.DB
 }
 
 // Инициализация БД с проверкой соединения (конструктор)
@@ -40,16 +40,16 @@ func New(lg *zap.Logger, cfg config.Postgres) (infra.Database, error) {
 	}
 	lg.Info("Connect to Postgres database success")
 
-	return &postgresDB{logger: lg, db: db}, nil
+	return &PostgresDB{Logger: lg, Db: db}, nil
 }
 
-func (p *postgresDB) Close() error {
-	return p.db.Close()
+func (p *PostgresDB) Close() error {
+	return p.Db.Close()
 }
 
-func (p *postgresDB) Find(ctx context.Context, fakeLink string) (string, error) {
+func (p *PostgresDB) Find(ctx context.Context, fakeLink string) (string, error) {
 	var link string
-	stmt, err := p.db.PrepareContext(ctx, "SELECT link FROM links WHERE fake_link = ?")
+	stmt, err := p.Db.PrepareContext(ctx, "SELECT link FROM links WHERE fake_link = ?")
 	if err != nil {
 		return "", status.Error(codes.Internal, err.Error())
 	}
@@ -66,9 +66,9 @@ func (p *postgresDB) Find(ctx context.Context, fakeLink string) (string, error) 
 	return link, nil
 }
 
-func (p *postgresDB) Create(ctx context.Context, link infra.InputLink) (int, error) {
+func (p *PostgresDB) Create(ctx context.Context, link infra.InputLink) (int, error) {
 	id := 0
-	stmt, err := p.db.PrepareContext(ctx, "INSERT INTO links (link, fake_link, erase_time) VALUES (?,?,?) RETURNING id")
+	stmt, err := p.Db.PrepareContext(ctx, "INSERT INTO links (link, fake_link, erase_time) VALUES (?,?,?) RETURNING id")
 	if err != nil {
 		return id, status.Error(codes.Internal, err.Error())
 	}
