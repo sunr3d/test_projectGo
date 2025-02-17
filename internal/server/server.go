@@ -12,7 +12,7 @@ type Server struct {
 	logger *zap.Logger
 }
 
-func NewServer(logger *zap.Logger) *Server {
+func New(logger *zap.Logger) *Server {
 	return &Server{
 		Server: grpc.NewServer(),
 		logger: logger,

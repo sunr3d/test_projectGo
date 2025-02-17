@@ -1,4 +1,4 @@
-package health
+package health_impl
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 
 type HealthService struct{}
 
-func NewHealthService() *HealthService {
+func New() *HealthService {
 	return &HealthService{}
 }
 

@@ -9,7 +9,6 @@ import (
 	"google.golang.org/grpc/status"
 	"link_service/internal/config"
 	"link_service/internal/interfaces/infra"
-	"log"
 )
 
 //var _ postgres.Chats = (*impl)(nil) ---- Не понимаю это
@@ -31,6 +30,7 @@ func New(lg *zap.Logger, cfg config.Postgres) (infra.Database, error) {
 	if err = db.Ping(); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
+	lg.Info("connect to postgres database success")
 
 	return &postgresDB{logger: lg, db: db}, nil
 }

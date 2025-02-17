@@ -1,4 +1,4 @@
-package link_service
+package link_service_impl
 
 import (
 	"context"
@@ -12,7 +12,7 @@ type LinkService struct {
 	service services.Service
 }
 
-func NewLinkService(service services.Service) *LinkService {
+func New(service services.Service) *LinkService {
 	return &LinkService{service: service}
 }
 
