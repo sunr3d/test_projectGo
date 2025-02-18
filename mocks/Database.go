@@ -15,42 +15,34 @@ type Database struct {
 }
 
 // Create provides a mock function with given fields: ctx, link
-func (_m *Database) Create(ctx context.Context, link infra.InputLink) (int, error) {
+func (_m *Database) Create(ctx context.Context, link infra.InputLink) error {
 	ret := _m.Called(ctx, link)
 
-	var r0 int
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, infra.InputLink) (int, error)); ok {
-		return rf(ctx, link)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, infra.InputLink) int); ok {
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, infra.InputLink) error); ok {
 		r0 = rf(ctx, link)
 	} else {
-		r0 = ret.Get(0).(int)
+		r0 = ret.Error(0)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, infra.InputLink) error); ok {
-		r1 = rf(ctx, link)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
 // Find provides a mock function with given fields: ctx, fakeLink
-func (_m *Database) Find(ctx context.Context, fakeLink string) (string, error) {
+func (_m *Database) Find(ctx context.Context, fakeLink string) (*string, error) {
 	ret := _m.Called(ctx, fakeLink)
 
-	var r0 string
+	var r0 *string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*string, error)); ok {
 		return rf(ctx, fakeLink)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) string); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *string); ok {
 		r0 = rf(ctx, fakeLink)
 	} else {
-		r0 = ret.Get(0).(string)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*string)
+		}
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {

@@ -26,9 +26,8 @@ func TestService_Create(t *testing.T) {
 	repo.On("Find", mock.Anything, inputLink.FakeLink).Return("", nil)
 	repo.On("Create", mock.Anything, mock.Anything).Return(1, nil)
 
-	id, err := svc.Create(context.Background(), inputLink)
+	err := svc.Create(context.Background(), inputLink)
 	assert.NoError(t, err)
-	assert.Equal(t, 1, id)
 
 	repo.AssertExpectations(t)
 }
@@ -63,9 +62,8 @@ func TestService_Create_LinkAlreadyExists(t *testing.T) {
 
 	repo.On("Find", mock.Anything, inputLink.FakeLink).Return("http://example.com", nil)
 
-	id, err := svc.Create(context.Background(), inputLink)
+	err := svc.Create(context.Background(), inputLink)
 	assert.Error(t, err)
-	assert.Equal(t, 0, id)
 	assert.Equal(t, "link already exists", err.Error())
 
 	repo.AssertExpectations(t)

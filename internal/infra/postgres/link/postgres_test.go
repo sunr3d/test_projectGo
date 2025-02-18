@@ -90,14 +90,13 @@ func TestPostgresDB_Create(t *testing.T) {
 		EraseTime: time.Now().Add(24 * time.Hour),
 	}
 
-	mock.ExpectPrepare("INSERT INTO links \\(link, fake_link, erase_time\\) VALUES \\(\\?,\\?,\\?\\) RETURNING id").
+	mock.ExpectPrepare("INSERT INTO links (link, fake_link, erase_time) VALUES (?,?,?) RETURNING id").
 		ExpectQuery().
 		WithArgs(inputLink.Link, inputLink.FakeLink, inputLink.EraseTime).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 
-	id, err := postgresDB.Create(context.Background(), inputLink)
+	err = postgresDB.Create(context.Background(), inputLink)
 	assert.NoError(t, err)
-	assert.Equal(t, 1, id)
 }
 
 func TestPostgresDB_Create_Error(t *testing.T) {
@@ -114,12 +113,11 @@ func TestPostgresDB_Create_Error(t *testing.T) {
 		EraseTime: time.Now().Add(24 * time.Hour),
 	}
 
-	mock.ExpectPrepare("INSERT INTO links \\(link, fake_link, erase_time\\) VALUES \\(\\?,\\?,\\?\\) RETURNING id").
+	mock.ExpectPrepare("INSERT INTO links (link, fake_link, erase_time) VALUES (?,?,?) RETURNING id").
 		ExpectQuery().
 		WithArgs(inputLink.Link, inputLink.FakeLink, inputLink.EraseTime).
 		WillReturnError(errors.New("insert error"))
 
-	id, err := postgresDB.Create(context.Background(), inputLink)
+	err = postgresDB.Create(context.Background(), inputLink)
 	assert.Error(t, err)
-	assert.Equal(t, 0, id)
 }
