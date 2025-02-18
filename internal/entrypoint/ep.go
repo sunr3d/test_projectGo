@@ -1,6 +1,7 @@
 package entrypoint
 
 import (
+	"fmt"
 	"go.uber.org/zap" // logger
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection" // reflection для теста ручек через `grpcurl` в терминале
@@ -19,7 +20,7 @@ func Run(cfg *config.Config, logger *zap.Logger) error {
 	// Connect to `PGSQL` w data from `cfg`
 	pg, err := postgres_impl.New(logger, cfg.Postgres)
 	if err != nil {
-		return err
+		return fmt.Errorf("create postgres link service: %w", err)
 	}
 
 	// Service layer
@@ -38,7 +39,7 @@ func Run(cfg *config.Config, logger *zap.Logger) error {
 
 	// Запуск сервера
 	if err = grpcServer.Run(cfg.GRPCPort); err != nil {
-		return err
+		return fmt.Errorf("run grpc server: %w", err)
 	}
 
 	return nil

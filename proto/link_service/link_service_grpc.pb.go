@@ -4,13 +4,14 @@
 // - protoc             v5.27.3
 // source: link_service/link_service.proto
 
-package link_service
+package link_service_impl
 
 import (
 	context "context"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -28,7 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type LinkServiceClient interface {
 	GetLink(ctx context.Context, in *GetLinkRequest, opts ...grpc.CallOption) (*GetLinkResponse, error)
-	InputLink(ctx context.Context, in *InputLinkRequest, opts ...grpc.CallOption) (*InputLinkResponse, error)
+	InputLink(ctx context.Context, in *InputLinkRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type linkServiceClient struct {
@@ -49,9 +50,9 @@ func (c *linkServiceClient) GetLink(ctx context.Context, in *GetLinkRequest, opt
 	return out, nil
 }
 
-func (c *linkServiceClient) InputLink(ctx context.Context, in *InputLinkRequest, opts ...grpc.CallOption) (*InputLinkResponse, error) {
+func (c *linkServiceClient) InputLink(ctx context.Context, in *InputLinkRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(InputLinkResponse)
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, LinkService_InputLink_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -64,7 +65,7 @@ func (c *linkServiceClient) InputLink(ctx context.Context, in *InputLinkRequest,
 // for forward compatibility.
 type LinkServiceServer interface {
 	GetLink(context.Context, *GetLinkRequest) (*GetLinkResponse, error)
-	InputLink(context.Context, *InputLinkRequest) (*InputLinkResponse, error)
+	InputLink(context.Context, *InputLinkRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedLinkServiceServer should be embedded to have
@@ -77,7 +78,7 @@ type UnimplementedLinkServiceServer struct{}
 func (UnimplementedLinkServiceServer) GetLink(context.Context, *GetLinkRequest) (*GetLinkResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLink not implemented")
 }
-func (UnimplementedLinkServiceServer) InputLink(context.Context, *InputLinkRequest) (*InputLinkResponse, error) {
+func (UnimplementedLinkServiceServer) InputLink(context.Context, *InputLinkRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InputLink not implemented")
 }
 func (UnimplementedLinkServiceServer) testEmbeddedByValue() {}

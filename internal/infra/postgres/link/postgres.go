@@ -13,14 +13,14 @@ import (
 	"link_service/internal/interfaces/infra"
 )
 
-//var _ postgres.Chats = (*impl)(nil) ---- Не понимаю это
+var _ infra.Database = (*PostgresDB)(nil)
 
 type PostgresDB struct {
 	Logger *zap.Logger
 	Db     *sql.DB
 }
 
-// Инициализация БД с проверкой соединения (конструктор)
+// New Инициализация БД с проверкой соединения (конструктор)
 func New(lg *zap.Logger, cfg config.Postgres) (infra.Database, error) {
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		cfg.Host,
@@ -47,30 +47,30 @@ func (p *PostgresDB) Close() error {
 	return p.Db.Close()
 }
 
-func (p *PostgresDB) Find(ctx context.Context, fakeLink string) (string, error) {
-	var link string
-	stmt, err := p.Db.PrepareContext(ctx, "SELECT link FROM links WHERE fake_link = ?")
+func (p *PostgresDB) Find(ctx context.Context, fakeLink string) (*string, error) {
+	var link *string
+	stmt, err := p.Db.PrepareContext(ctx, "SELECT link FROM links WHERE fake_link = $1")
 	if err != nil {
-		return "", status.Error(codes.Internal, err.Error())
+		return nil, fmt.Errorf("prepare statement: %w", err)
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRowContext(ctx, fakeLink).Scan(&link)
+	err = stmt.QueryRowContext(ctx, fakeLink).Scan(link)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return "", nil
+			return nil, nil
 		}
-		return "", status.Error(codes.Internal, err.Error())
+		return nil, fmt.Errorf("query row: %w", err)
 	}
 
 	return link, nil
 }
 
-func (p *PostgresDB) Create(ctx context.Context, link infra.InputLink) (int, error) {
+func (p *PostgresDB) Create(ctx context.Context, link infra.InputLink) error {
 	id := 0
-	stmt, err := p.Db.PrepareContext(ctx, "INSERT INTO links (link, fake_link, erase_time) VALUES (?,?,?) RETURNING id")
+	stmt, err := p.Db.PrepareContext(ctx, "INSERT INTO links (link, fake_link, erase_time) VALUES ($1,$2,$3)")
 	if err != nil {
-		return id, status.Error(codes.Internal, err.Error())
+		return fmt.Errorf("prepare statement: %w", err)
 	}
 	defer stmt.Close()
 
@@ -81,8 +81,8 @@ func (p *PostgresDB) Create(ctx context.Context, link infra.InputLink) (int, err
 		link.EraseTime,
 	).Scan(&id)
 	if err != nil {
-		return id, status.Error(codes.Internal, err.Error())
+		return status.Error(codes.Internal, err.Error())
 	}
 
-	return id, nil
+	return nil
 }

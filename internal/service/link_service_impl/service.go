@@ -2,7 +2,7 @@ package link_service_impl
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"go.uber.org/zap"
 	"link_service/internal/interfaces/infra"
 	"link_service/internal/interfaces/services"
@@ -19,25 +19,26 @@ func New(logger *zap.Logger, repo infra.Database) services.Service {
 	return &service{logger: logger, repo: repo}
 }
 
-func (s *service) Create(ctx context.Context, link services.InputLink) (int, error) {
-	var id int
+func (s *service) Create(ctx context.Context, link services.InputLink) error {
 	linkFound, err := s.repo.Find(ctx, link.FakeLink)
 	if err != nil {
-		return id, err
+		return err
 	}
-	if linkFound != "" {
-		return id, errors.New("link already exists")
+	if linkFound != nil {
+		return LinkAlreadyExists
 	}
+	err = s.repo.Create(ctx, infra.InputLink(link))
 
-	id, err = s.repo.Create(ctx, infra.InputLink(link))
-
-	return id, nil
+	return nil
 }
 
 func (s *service) Find(ctx context.Context, fakeLink string) (string, error) {
 	link, err := s.repo.Find(ctx, fakeLink)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to find link: %w", err)
 	}
-	return link, nil
+	if link == nil {
+		return "", LinkNotFound
+	}
+	return *link, nil
 }
