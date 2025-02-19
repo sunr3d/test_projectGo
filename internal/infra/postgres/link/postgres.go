@@ -48,14 +48,14 @@ func (p *PostgresDB) Close() error {
 }
 
 func (p *PostgresDB) Find(ctx context.Context, fakeLink string) (*string, error) {
-	var link *string
+	var link string
 	stmt, err := p.Db.PrepareContext(ctx, "SELECT link FROM links WHERE fake_link = $1")
 	if err != nil {
 		return nil, fmt.Errorf("prepare statement: %w", err)
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRowContext(ctx, fakeLink).Scan(link)
+	err = stmt.QueryRowContext(ctx, fakeLink).Scan(&link)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -63,23 +63,22 @@ func (p *PostgresDB) Find(ctx context.Context, fakeLink string) (*string, error)
 		return nil, fmt.Errorf("query row: %w", err)
 	}
 
-	return link, nil
+	return &link, nil
 }
 
 func (p *PostgresDB) Create(ctx context.Context, link infra.InputLink) error {
-	id := 0
 	stmt, err := p.Db.PrepareContext(ctx, "INSERT INTO links (link, fake_link, erase_time) VALUES ($1,$2,$3)")
 	if err != nil {
 		return fmt.Errorf("prepare statement: %w", err)
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRowContext(
+	_, err = stmt.ExecContext(
 		ctx,
 		link.Link,
 		link.FakeLink,
 		link.EraseTime,
-	).Scan(&id)
+	)
 	if err != nil {
 		return status.Error(codes.Internal, err.Error())
 	}
