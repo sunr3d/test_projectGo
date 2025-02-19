@@ -18,13 +18,14 @@ func TestService_Create(t *testing.T) {
 	svc := New(logger, repo)
 
 	inputLink := services.InputLink{
-		Link:      "http://example.com",
-		FakeLink:  "http://fake.com",
+		Link:      "https://example.com",
+		FakeLink:  "https://fake.com",
 		EraseTime: time.Now().Add(24 * time.Hour),
 	}
 
-	repo.On("Find", mock.Anything, inputLink.FakeLink).Return("", nil)
-	repo.On("Create", mock.Anything, mock.Anything).Return(1, nil)
+	var emptyLink *string
+	repo.On("Find", mock.Anything, inputLink.FakeLink).Return(emptyLink, nil)
+	repo.On("Create", mock.Anything, mock.Anything).Return(nil)
 
 	err := svc.Create(context.Background(), inputLink)
 	assert.NoError(t, err)
@@ -37,10 +38,10 @@ func TestService_Find(t *testing.T) {
 	repo := new(mocks.Database)
 	svc := New(logger, repo)
 
-	fakeLink := "http://fake.com"
-	expectedLink := "http://example.com"
+	fakeLink := "https://fake.com"
+	expectedLink := "https://example.com"
 
-	repo.On("Find", mock.Anything, fakeLink).Return(expectedLink, nil)
+	repo.On("Find", mock.Anything, fakeLink).Return(&expectedLink, nil)
 
 	link, err := svc.Find(context.Background(), fakeLink)
 	assert.NoError(t, err)
@@ -55,12 +56,12 @@ func TestService_Create_LinkAlreadyExists(t *testing.T) {
 	svc := New(logger, repo)
 
 	inputLink := services.InputLink{
-		Link:      "http://example.com",
-		FakeLink:  "http://fake.com",
+		Link:      "https://example.com",
+		FakeLink:  "https://fake.com",
 		EraseTime: time.Now().Add(24 * time.Hour),
 	}
 
-	repo.On("Find", mock.Anything, inputLink.FakeLink).Return("http://example.com", nil)
+	repo.On("Find", mock.Anything, inputLink.FakeLink).Return(&inputLink.Link, nil)
 
 	err := svc.Create(context.Background(), inputLink)
 	assert.Error(t, err)
