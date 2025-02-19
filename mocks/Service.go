@@ -15,27 +15,17 @@ type Service struct {
 }
 
 // Create provides a mock function with given fields: ctx, link
-func (_m *Service) Create(ctx context.Context, link services.InputLink) (int, error) {
+func (_m *Service) Create(ctx context.Context, link services.InputLink) error {
 	ret := _m.Called(ctx, link)
 
-	var r0 int
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, services.InputLink) (int, error)); ok {
-		return rf(ctx, link)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, services.InputLink) int); ok {
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, services.InputLink) error); ok {
 		r0 = rf(ctx, link)
 	} else {
-		r0 = ret.Get(0).(int)
+		r0 = ret.Error(0)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, services.InputLink) error); ok {
-		r1 = rf(ctx, link)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
 // Find provides a mock function with given fields: ctx, fakeLink
