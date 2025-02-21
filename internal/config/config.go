@@ -12,7 +12,7 @@ type Config struct {
 type Postgres struct {
 	Host     string `envconfig:"HOST" required:"true"`
 	Port     string `envconfig:"PORT" required:"true"`
-	Username string `envconfig:"USERNAME" required:"true"`
+	Username string `envconfig:"DBUSERNAME" required:"true"`
 	Password string `envconfig:"PASSWORD" required:"true"`
 	Database string `envconfig:"DATABASE" required:"true"`
 }
