@@ -7,6 +7,7 @@ type Config struct {
 	//PrometheusPort string `envconfig:"PROMETHEUS_PORT" default:"9090"`
 	LogLevel string   `envconfig:"LOG_LEVEL" default:"debug"` // Уровень логирования
 	Postgres Postgres `envconfig:"POSTGRES"`
+	Redis    Redis    `envconfig:"REDIS"`
 }
 
 type Postgres struct {
@@ -15,4 +16,10 @@ type Postgres struct {
 	Username string `envconfig:"DBUSERNAME" required:"true"`
 	Password string `envconfig:"PASSWORD" required:"true"`
 	Database string `envconfig:"DATABASE" required:"true"`
+}
+
+type Redis struct {
+	Addr     string `envconfig:"REDIS_ADDR" required:"true"`
+	Password string `envconfig:"REDIS_PASSWORD" required:"true"`
+	DB       int    `envconfig:"REDIS_DB" required:"true"`
 }
