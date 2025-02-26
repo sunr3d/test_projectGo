@@ -9,6 +9,7 @@ import (
 	hh "link_service/internal/handlers/health"
 	lsh "link_service/internal/handlers/link_service"
 	postgres_impl "link_service/internal/infra/postgres/link"
+	redis_impl "link_service/internal/infra/redis"
 	"link_service/internal/server"
 	"link_service/internal/service/link_service_impl"
 	pbls "link_service/proto/link_service"
@@ -16,15 +17,23 @@ import (
 
 func Run(cfg *config.Config, logger *zap.Logger) error {
 
-	// Infra (DB)
-	// Connect to `PGSQL` w data from `cfg`
+	/// Слой репозиториев (infra)
+	// Коннект к БД Постгрес по данным из конфига
 	pg, err := postgres_impl.New(logger, cfg.Postgres)
 	if err != nil {
 		return fmt.Errorf("create postgres link service: %w", err)
 	}
+	defer pg.Close()
 
-	// Service layer
-	svc := link_service_impl.New(logger, pg)
+	// Коннект к Редису (как кэш БД) по данным из конфига
+	rd, err := redis_impl.New(logger, cfg.Redis)
+	if err != nil {
+		return fmt.Errorf("create redis link service: %w", err)
+	}
+	defer rd.Close()
+
+	/// Сервисный слой
+	svc := link_service_impl.New(logger, pg, rd)
 
 	grpcServer := server.New(logger)
 	reflection.Register(grpcServer.Server) // reflection для теста ручек через `grpcurl` в терминале
@@ -37,7 +46,7 @@ func Run(cfg *config.Config, logger *zap.Logger) error {
 	linkService := lsh.New(svc)
 	pbls.RegisterLinkServiceServer(grpcServer.Server, linkService)
 
-	// Запуск сервера
+	/// Запуск сервера
 	if err = grpcServer.Run(cfg.GRPCPort); err != nil {
 		return fmt.Errorf("run grpc server: %w", err)
 	}
