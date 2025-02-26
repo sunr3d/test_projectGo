@@ -15,7 +15,8 @@ import (
 func TestService_Create(t *testing.T) {
 	logger := zap.NewNop()
 	repo := new(mocks.Database)
-	svc := New(logger, repo)
+	cache := new(mocks.Cache)
+	svc := New(logger, repo, cache)
 
 	inputLink := services.InputLink{
 		Link:      "https://example.com",
@@ -33,27 +34,53 @@ func TestService_Create(t *testing.T) {
 	repo.AssertExpectations(t)
 }
 
-func TestService_Find(t *testing.T) {
+func TestService_Find_in_DB(t *testing.T) {
 	logger := zap.NewNop()
 	repo := new(mocks.Database)
-	svc := New(logger, repo)
+	cache := new(mocks.Cache)
+	svc := New(logger, repo, cache)
 
 	fakeLink := "https://fake.com"
 	expectedLink := "https://example.com"
 
 	repo.On("Find", mock.Anything, fakeLink).Return(&expectedLink, nil)
+	cache.On("Get", mock.Anything, fakeLink).Return("", nil)
+	cache.On("Set", mock.Anything, fakeLink, expectedLink).Return(nil)
 
 	link, err := svc.Find(context.Background(), fakeLink)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedLink, link)
 
+	cache.AssertExpectations(t)
+	repo.AssertExpectations(t)
+}
+
+func TestService_Find_in_Cache(t *testing.T) {
+	logger := zap.NewNop()
+	repo := new(mocks.Database)
+	cache := new(mocks.Cache)
+	svc := New(logger, repo, cache)
+
+	fakeLink := "https://fake.com"
+	expectedLink := "https://example.com"
+
+	cache.On("Get", mock.Anything, fakeLink).Return(expectedLink, nil)
+
+	repo.AssertNotCalled(t, "Find", mock.Anything, fakeLink)
+
+	link, err := svc.Find(context.Background(), fakeLink)
+	assert.NoError(t, err)
+	assert.Equal(t, expectedLink, link)
+
+	cache.AssertExpectations(t)
 	repo.AssertExpectations(t)
 }
 
 func TestService_Create_LinkAlreadyExists(t *testing.T) {
 	logger := zap.NewNop()
 	repo := new(mocks.Database)
-	svc := New(logger, repo)
+	cache := new(mocks.Cache)
+	svc := New(logger, repo, cache)
 
 	inputLink := services.InputLink{
 		Link:      "https://example.com",
@@ -65,7 +92,7 @@ func TestService_Create_LinkAlreadyExists(t *testing.T) {
 
 	err := svc.Create(context.Background(), inputLink)
 	assert.Error(t, err)
-	assert.Equal(t, "link already exists", err.Error())
+	assert.Equal(t, "link already exists or wrong input", err.Error())
 
 	repo.AssertExpectations(t)
 }
