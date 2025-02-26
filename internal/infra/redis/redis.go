@@ -4,18 +4,23 @@ import (
 	"context"
 	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
+	"link_service/internal/config"
+	"link_service/internal/interfaces/infra"
+	"time"
 )
+
+var _ infra.Cache = (*RedisDB)(nil)
 
 type RedisDB struct {
 	Logger *zap.Logger
 	Client *redis.Client
 }
 
-func New(lg *zap.Logger, addr, password string, db int) (*RedisDB, error) {
+func New(lg *zap.Logger, cfg config.Redis) (*RedisDB, error) {
 	client := redis.NewClient(&redis.Options{
-		Addr:     addr,
-		Password: password,
-		DB:       db,
+		Addr:     cfg.Addr,
+		Password: cfg.Password,
+		DB:       cfg.DB,
 	})
 
 	if _, err := client.Ping(context.Background()).Result(); err != nil {
@@ -36,5 +41,6 @@ func (r *RedisDB) Get(ctx context.Context, key string) (string, error) {
 }
 
 func (r *RedisDB) Set(ctx context.Context, key string, value any) error {
-	return r.Client.Set(ctx, key, value, 0).Err()
+	ttl := 24 * time.Hour
+	return r.Client.Set(ctx, key, value, ttl).Err()
 }
