@@ -10,12 +10,6 @@ import (
 
 var _ services.Service = (*service)(nil)
 
-type service struct {
-	logger *zap.Logger
-	repo   infra.Database
-	cache  infra.Cache
-}
-
 func New(logger *zap.Logger, repo infra.Database, cache infra.Cache) services.Service {
 	return &service{logger: logger, repo: repo, cache: cache}
 }
