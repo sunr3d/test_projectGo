@@ -14,6 +14,20 @@ type Database struct {
 	mock.Mock
 }
 
+// Close provides a mock function with given fields:
+func (_m *Database) Close() error {
+	ret := _m.Called()
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Create provides a mock function with given fields: ctx, link
 func (_m *Database) Create(ctx context.Context, link infra.InputLink) error {
 	ret := _m.Called(ctx, link)
