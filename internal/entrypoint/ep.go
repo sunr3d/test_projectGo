@@ -2,9 +2,11 @@ package entrypoint
 
 import (
 	"fmt"
+
 	"go.uber.org/zap" // logger
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection" // reflection для теста ручек через `grpcurl` в терминале
+
 	"link_service/internal/config"
 	hh "link_service/internal/handlers/health"
 	lsh "link_service/internal/handlers/link_service"

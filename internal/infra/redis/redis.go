@@ -2,11 +2,13 @@ package redis_impl
 
 import (
 	"context"
+	"time"
+
 	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
+
 	"link_service/internal/config"
 	"link_service/internal/interfaces/infra"
-	"time"
 )
 
 var _ infra.Cache = (*RedisDB)(nil)

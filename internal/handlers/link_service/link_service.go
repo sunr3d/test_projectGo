@@ -2,7 +2,9 @@ package link_service_handler
 
 import (
 	"context"
+
 	"google.golang.org/protobuf/types/known/emptypb"
+
 	"link_service/internal/interfaces/services"
 	pb "link_service/proto/link_service"
 )

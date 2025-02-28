@@ -2,9 +2,10 @@ package server
 
 import (
 	"fmt"
+	"net"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	"net"
 )
 
 type Server struct {
