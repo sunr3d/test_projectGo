@@ -3,6 +3,7 @@ package link_service_impl
 import "errors"
 
 var (
-	LinkAlreadyExists = errors.New("link already exists or wrong input")
-	LinkNotFound      = errors.New("link not found")
+	ErrLinkAlreadyExists = errors.New("link already exists")
+	ErrWrongLinkFormat   = errors.New("wrong link format")
+	ErrLinkNotFound      = errors.New("link not found")
 )

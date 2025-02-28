@@ -22,7 +22,7 @@ func (s *service) Create(ctx context.Context, link services.InputLink) error {
 		return err
 	}
 	if linkFound != nil {
-		return LinkAlreadyExists
+		return ErrLinkAlreadyExists
 	}
 	err = s.repo.Create(ctx, infra.InputLink(link))
 
@@ -43,7 +43,7 @@ func (s *service) Find(ctx context.Context, fakeLink string) (string, error) {
 		return "", fmt.Errorf("failed to find link: %w", err)
 	}
 	if link == nil {
-		return "", LinkNotFound
+		return "", ErrLinkNotFound
 	}
 	//fmt.Println("Link from DB: ", *link) // TODO: DELETE DEBUG LINE
 
