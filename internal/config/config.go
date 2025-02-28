@@ -19,7 +19,7 @@ type Postgres struct {
 }
 
 type Redis struct {
-	Addr     string `envconfig:"REDIS_ADDR" required:"true"`
-	Password string `envconfig:"REDIS_PASSWORD" required:"true"`
-	DB       int    `envconfig:"REDIS_DB" required:"true"`
+	Addr     string `envconfig:"ADDR" required:"true"`
+	Password string `envconfig:"PASSWORD" required:"true"`
+	DB       int    `envconfig:"DB" required:"true"`
 }
