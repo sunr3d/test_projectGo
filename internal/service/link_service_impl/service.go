@@ -2,7 +2,9 @@ package link_service_impl
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"github.com/go-redis/redis/v8"
 
 	"go.uber.org/zap"
 
@@ -31,7 +33,12 @@ func (s *service) Create(ctx context.Context, link services.InputLink) error {
 
 func (s *service) Find(ctx context.Context, fakeLink string) (string, error) {
 	// Ищем в кэше
-	cachedLink, _ := s.cache.Get(ctx, fakeLink)
+	cachedLink, err := s.cache.Get(ctx, fakeLink)
+	if err != nil {
+		if !errors.Is(err, redis.Nil) {
+			s.logger.Warn("cache.Get err", zap.Error(err))
+		}
+	}
 	if cachedLink != "" {
 		s.logger.Debug("cache.Get", zap.String("link", cachedLink))
 		return cachedLink, nil
