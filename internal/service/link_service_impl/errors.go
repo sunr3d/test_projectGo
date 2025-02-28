@@ -4,6 +4,6 @@ import "errors"
 
 var (
 	ErrLinkAlreadyExists = errors.New("link already exists")
-	ErrWrongLinkFormat   = errors.New("wrong link format")
+	ErrWrongInputFormat  = errors.New("wrong input format")
 	ErrLinkNotFound      = errors.New("link not found")
 )
