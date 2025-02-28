@@ -31,8 +31,8 @@ func (s *service) Create(ctx context.Context, link services.InputLink) error {
 
 func (s *service) Find(ctx context.Context, fakeLink string) (string, error) {
 	// Ищем в кэше
-	cachedLink, err := s.cache.Get(ctx, fakeLink)
-	if err == nil && cachedLink != "" {
+	cachedLink, _ := s.cache.Get(ctx, fakeLink)
+	if cachedLink != "" {
 		s.logger.Debug("cache.Get", zap.String("link", cachedLink))
 		return cachedLink, nil
 	}

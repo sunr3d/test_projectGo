@@ -2,6 +2,7 @@ package redis_impl
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -39,7 +40,15 @@ func (r *RedisDB) Close() error {
 }
 
 func (r *RedisDB) Get(ctx context.Context, key string) (string, error) {
-	return r.Client.Get(ctx, key).Result()
+	res, err := r.Client.Get(ctx, key).Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return "", nil
+		}
+		r.Logger.Warn("redis Get failed:", zap.Error(err))
+		return "", nil
+	}
+	return res, nil
 }
 
 func (r *RedisDB) Set(ctx context.Context, key string, value any) error {
