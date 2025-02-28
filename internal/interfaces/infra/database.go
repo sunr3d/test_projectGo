@@ -8,5 +8,4 @@ import (
 type Database interface {
 	Find(ctx context.Context, fakeLink string) (*string, error)
 	Create(ctx context.Context, link InputLink) error
-	Close() error
 }
