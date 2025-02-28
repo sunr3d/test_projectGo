@@ -23,14 +23,12 @@ func Run(cfg *config.Config, logger *zap.Logger) error {
 	if err != nil {
 		return fmt.Errorf("create postgres link service: %w", err)
 	}
-	defer pg.Close()
 
 	// Коннект к Редису (как кэш БД) по данным из конфига
 	rd, err := redis_impl.New(logger, cfg.Redis)
 	if err != nil {
 		return fmt.Errorf("create redis link service: %w", err)
 	}
-	defer rd.Close()
 
 	/// Сервисный слой
 	svc := link_service_impl.New(logger, pg, rd)
