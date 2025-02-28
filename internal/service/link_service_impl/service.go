@@ -33,25 +33,26 @@ func (s *service) Find(ctx context.Context, fakeLink string) (string, error) {
 	// Ищем в кэше
 	cachedLink, err := s.cache.Get(ctx, fakeLink)
 	if err == nil && cachedLink != "" {
-		//fmt.Println("Link from cache: ", cachedLink) // TODO: DELETE DEBUG LINE
+		s.logger.Debug("cache.Get", zap.String("link", cachedLink))
 		return cachedLink, nil
 	}
 
 	// Если в кэше нет, ищем в БД
 	link, err := s.repo.Find(ctx, fakeLink)
 	if err != nil {
-		return "", fmt.Errorf("failed to find link: %w", err)
+		return "", fmt.Errorf("repo.Find err: %w", err)
 	}
 	if link == nil {
 		return "", ErrLinkNotFound
 	}
-	//fmt.Println("Link from DB: ", *link) // TODO: DELETE DEBUG LINE
+	s.logger.Debug("repo.Find", zap.String("link", *link))
 
-	// Сохраняем в кэш
-	if err = s.cache.Set(ctx, fakeLink, *link); err != nil {
-		return "", fmt.Errorf("failed to cache link: %w", err)
-	}
-	//fmt.Println("Saved to cache!", *link) // TODO: DELETE DEBUG LINE
+	// Сохраняем в кэш отдельным процессом
+	go func() {
+		if err = s.cache.Set(context.WithoutCancel(ctx), fakeLink, *link); err != nil {
+			s.logger.Error("cache.Set err:", zap.Error(err))
+		}
+	}()
 
 	return *link, nil
 }
