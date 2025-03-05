@@ -32,6 +32,7 @@ func (g *Gateway) Run(ctx context.Context, grpcPort, httpPort string) error {
 	}
 
 	g.logger.Info("HTTP server started", zap.String("address", fmt.Sprintf("localhost:%s", httpPort)))
+
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", httpPort), mux); err != nil {
 		return fmt.Errorf("gateway.Run, failed server HTTP: %w", err)
 	}
