@@ -1,6 +1,7 @@
 package entrypoint
 
 import (
+	"context"
 	"fmt"
 
 	"go.uber.org/zap" // logger
@@ -47,7 +48,8 @@ func Run(cfg *config.Config, logger *zap.Logger) error {
 	pbls.RegisterLinkServiceServer(grpcServer.Server, linkService)
 
 	/// Запуск сервера
-	if err = grpcServer.Run(cfg.GRPCPort); err != nil {
+	ctx := context.Background()
+	if err = grpcServer.Run(ctx, cfg); err != nil {
 		return fmt.Errorf("run grpc server: %w", err)
 	}
 
