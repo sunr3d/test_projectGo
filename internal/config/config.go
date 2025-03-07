@@ -4,10 +4,12 @@ type Config struct {
 	ServiceName string `envconfig:"SERVICE_NAME" required:"true"`
 	Version     string `envconfig:"VERSION" required:"true"`
 	GRPCPort    string `envconfig:"GRPC_PORT" default:"50051"`
+	HTTPPort    string `envconfig:"HTTP_PORT" default:"8080"`
 	//PrometheusPort string `envconfig:"PROMETHEUS_PORT" default:"9090"`
-	LogLevel string   `envconfig:"LOG_LEVEL" default:"debug"` // Уровень логирования
-	Postgres Postgres `envconfig:"POSTGRES"`
-	Redis    Redis    `envconfig:"REDIS"`
+	LogLevel      string   `envconfig:"LOG_LEVEL" default:"debug"`      // Уровень логирования
+	GatewayEnable bool     `envconfig:"GATEWAY_ENABLE" default:"false"` // Флаг для включения HTTP-сервера
+	Postgres      Postgres `envconfig:"POSTGRES"`
+	Redis         Redis    `envconfig:"REDIS"`
 }
 
 type Postgres struct {
