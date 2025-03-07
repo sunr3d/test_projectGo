@@ -1,8 +1,10 @@
 package entrypoint
 
 import (
-	"context"
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"go.uber.org/zap" // logger
 	"google.golang.org/grpc/health/grpc_health_v1"
@@ -19,7 +21,6 @@ import (
 )
 
 func Run(cfg *config.Config, logger *zap.Logger) error {
-
 	/// Слой репозиториев (infra)
 	// Коннект к БД Постгрес по данным из конфига
 	pg, err := postgres_impl.New(logger, cfg.Postgres)
@@ -36,7 +37,7 @@ func Run(cfg *config.Config, logger *zap.Logger) error {
 	/// Сервисный слой
 	svc := link_service_impl.New(logger, pg, rd)
 
-	grpcServer := server.New(logger)
+	grpcServer := server.New(logger, cfg.GRPCPort, cfg.HTTPPort, cfg.GatewayEnable)
 	reflection.Register(grpcServer.Server) // reflection для теста ручек через `grpcurl` в терминале
 
 	// Регистрация сервиса health
@@ -48,10 +49,18 @@ func Run(cfg *config.Config, logger *zap.Logger) error {
 	pbls.RegisterLinkServiceServer(grpcServer.Server, linkService)
 
 	/// Запуск сервера
-	ctx := context.Background()
-	if err = grpcServer.Run(ctx, cfg); err != nil {
-		return fmt.Errorf("run grpc server: %w", err)
-	}
+	go func() {
+		if err = grpcServer.Run(); err != nil {
+			//return fmt.Errorf("run grpc server: %w", err)
+			logger.Fatal("grpc server run error", zap.Error(err))
+		}
+	}()
+
+	done := make(chan os.Signal)
+	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)
+
+	<-done
+	grpcServer.Stop()
 
 	return nil
 
