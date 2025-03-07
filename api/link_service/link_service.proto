@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package link_service_handler;
+package link_service;
 
 import "google/protobuf/timestamp.proto"; // для поля EraseTime
 import "google/protobuf/empty.proto"; // для пустого ответа
