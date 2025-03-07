@@ -23,17 +23,17 @@ func New(logger *zap.Logger) *Gateway {
 	}
 }
 
-func (g *Gateway) Run(ctx context.Context, grpcPort, httpPort string) error {
+func (g *Gateway) Run(ctx context.Context, grpcAddress, httpAddress string) error {
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
-	if err := pbls.RegisterLinkServiceHandlerFromEndpoint(ctx, mux, fmt.Sprintf("localhost:%s", grpcPort), opts); err != nil {
+	if err := pbls.RegisterLinkServiceHandlerFromEndpoint(ctx, mux, grpcAddress, opts); err != nil {
 		return fmt.Errorf("gateway.Run, failed to register handler: %w", err)
 	}
 
-	g.logger.Info("HTTP server started", zap.String("address", fmt.Sprintf("localhost:%s", httpPort)))
+	g.logger.Info("HTTP server started", zap.String("address", httpAddress))
 
-	if err := http.ListenAndServe(fmt.Sprintf(":%s", httpPort), mux); err != nil {
+	if err := http.ListenAndServe(httpAddress, mux); err != nil {
 		return fmt.Errorf("gateway.Run, failed server HTTP: %w", err)
 	}
 
