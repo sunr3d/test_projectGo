@@ -4,12 +4,22 @@ package link_service;
 
 import "google/protobuf/timestamp.proto"; // для поля EraseTime
 import "google/protobuf/empty.proto"; // для пустого ответа
+import "google/api/annotations.proto"; // для аннотаций
 
-option go_package = "/link_service_impl;link_service_impl";
+option go_package = "/link_service_handler;link_service_handler";
 
 service LinkService {
-  rpc GetLink(GetLinkRequest) returns (GetLinkResponse);
-  rpc InputLink(InputLinkRequest) returns (google.protobuf.Empty);
+  rpc GetLink(GetLinkRequest) returns (GetLinkResponse) {
+    option (google.api.http) = {
+      get: "/link/{link}"
+    };
+  }
+  rpc InputLink(InputLinkRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/link"
+      body: "*"
+    };
+  }
 }
 
 message GetLinkRequest {
