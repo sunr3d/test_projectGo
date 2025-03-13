@@ -92,7 +92,7 @@ func TestService_Create_LinkAlreadyExists(t *testing.T) {
 
 	err := svc.Create(context.Background(), inputLink)
 	assert.Error(t, err)
-	assert.Equal(t, "link already exists or wrong input", err.Error())
+	assert.Equal(t, "link already exists", err.Error())
 
 	repo.AssertExpectations(t)
 }
