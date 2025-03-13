@@ -20,6 +20,6 @@ func main() {
 
 	// Запуск сервера
 	if err = entrypoint.Run(cfg, zapLogger); err != nil {
-		zapLogger.Fatal("Run server failed: %s\n", zap.Error(err))
+		zapLogger.Fatal("entrypoint.Run: failed to run the server", zap.Error(err))
 	}
 }
