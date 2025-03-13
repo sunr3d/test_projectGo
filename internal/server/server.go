@@ -11,6 +11,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
+	"link_service/internal/interceptors"
 	"link_service/internal/server/gateway"
 )
 
@@ -27,8 +28,12 @@ type Server struct {
 
 func New(logger *zap.Logger, cfg *config.Config) *Server {
 	ctx, cancel := context.WithCancel(context.Background())
+
+	mtrInterceptor := interceptors.MetricsUnaryInterceptor()
+	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(mtrInterceptor))
+
 	return &Server{
-		Server:         grpc.NewServer(),
+		Server:         grpcServer,
 		logger:         logger,
 		GRPCAddress:    fmt.Sprintf("localhost:%s", cfg.GRPCPort),
 		HTTPAddress:    fmt.Sprintf("localhost:%s", cfg.HTTPPort),
