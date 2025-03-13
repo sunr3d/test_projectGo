@@ -16,14 +16,14 @@ import (
 )
 
 type Server struct {
-	Server         *grpc.Server
-	logger         *zap.Logger
 	GRPCAddress    string
 	HTTPAddress    string
 	PrometheusAddr string
-	GatewayEnable  bool
+	Server         *grpc.Server
+	logger         *zap.Logger
 	ctx            context.Context
 	cancel         context.CancelFunc
+	GatewayEnable  bool
 }
 
 func New(logger *zap.Logger, cfg *config.Config) *Server {
@@ -33,14 +33,14 @@ func New(logger *zap.Logger, cfg *config.Config) *Server {
 	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(mtrInterceptor))
 
 	return &Server{
-		Server:         grpcServer,
-		logger:         logger,
 		GRPCAddress:    fmt.Sprintf("localhost:%s", cfg.GRPCPort),
 		HTTPAddress:    fmt.Sprintf("localhost:%s", cfg.HTTPPort),
 		PrometheusAddr: fmt.Sprintf("localhost:%s", cfg.Prometheus.Port),
-		GatewayEnable:  cfg.GatewayEnable,
+		Server:         grpcServer,
+		logger:         logger,
 		ctx:            ctx,
 		cancel:         cancel,
+		GatewayEnable:  cfg.GatewayEnable,
 	}
 }
 
