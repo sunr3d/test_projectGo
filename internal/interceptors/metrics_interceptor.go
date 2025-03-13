@@ -9,7 +9,7 @@ import (
 	"link_service/internal/server/metrics"
 )
 
-// MetricsUnaryInterceptor перехватывает выполнение метода и собирает метрики
+// MetricsUnaryInterceptor при подключении во время инициализации гРПС сервера -- перехватывает выполнение метода и собирает метрики
 func MetricsUnaryInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		method := info.FullMethod // вытаскивает имя метода который вызывается
