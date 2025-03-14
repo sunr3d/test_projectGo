@@ -37,7 +37,7 @@ func Run(cfg *config.Config, logger *zap.Logger) error {
 	/// Сервисный слой
 	svc := link_service_impl.New(logger, pg, rd)
 
-	grpcServer := server.New(logger, cfg.GRPCPort, cfg.HTTPPort, cfg.GatewayEnable)
+	grpcServer := server.New(logger, cfg)
 	reflection.Register(grpcServer.Server) // reflection для теста ручек через `grpcurl` в терминале
 
 	// Регистрация сервиса health
@@ -51,12 +51,11 @@ func Run(cfg *config.Config, logger *zap.Logger) error {
 	/// Запуск сервера
 	go func() {
 		if err = grpcServer.Run(); err != nil {
-			//return fmt.Errorf("run grpc server: %w", err)
 			logger.Fatal("grpc server run error", zap.Error(err))
 		}
 	}()
 
-	done := make(chan os.Signal)
+	done := make(chan os.Signal, 1)
 	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)
 
 	<-done

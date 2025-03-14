@@ -2,6 +2,7 @@ package link_service_impl
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -48,6 +49,7 @@ func TestService_Find_in_DB(t *testing.T) {
 	cache.On("Set", mock.Anything, fakeLink, expectedLink).Return(nil)
 
 	link, err := svc.Find(context.Background(), fakeLink)
+	time.Sleep(50 * time.Millisecond)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedLink, link)
 
@@ -92,7 +94,7 @@ func TestService_Create_LinkAlreadyExists(t *testing.T) {
 
 	err := svc.Create(context.Background(), inputLink)
 	assert.Error(t, err)
-	assert.Equal(t, "link already exists or wrong input", err.Error())
+	assert.Equal(t, true, errors.Is(err, ErrLinkAlreadyExists))
 
 	repo.AssertExpectations(t)
 }

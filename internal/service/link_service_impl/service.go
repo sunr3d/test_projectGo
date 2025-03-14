@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-redis/redis/v8"
 
+	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
 
 	"link_service/internal/interfaces/infra"
@@ -27,6 +27,9 @@ func (s *service) Create(ctx context.Context, link services.InputLink) error {
 		return ErrLinkAlreadyExists
 	}
 	err = s.repo.Create(ctx, infra.InputLink(link))
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

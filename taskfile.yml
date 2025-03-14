@@ -80,3 +80,8 @@ tasks:
     cmds:
       - go generate ./...
       - go mod tidy && go mod vendor
+
+  test:
+    desc: Запуск тестов
+    cmds:
+      - go test -v -cover ./...

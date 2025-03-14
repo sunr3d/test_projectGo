@@ -2,6 +2,7 @@ package gateway
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -31,11 +32,26 @@ func (g *Gateway) Run(ctx context.Context, grpcAddress, httpAddress string) erro
 		return fmt.Errorf("gateway.Run, failed to register handler: %w", err)
 	}
 
-	g.logger.Info("HTTP server started", zap.String("address", httpAddress))
+	server := &http.Server{Addr: httpAddress, Handler: mux}
 
-	if err := http.ListenAndServe(httpAddress, mux); err != nil {
-		return fmt.Errorf("gateway.Run, failed server HTTP: %w", err)
+	go func() {
+		g.logger.Info("gateway.Run: Gateway HTTP server started", zap.String("address", httpAddress))
+
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			g.logger.Error("gateway.Run: ", zap.Error(err))
+		}
+	}()
+
+	/// Блок остановки сервера по сигналу отмены контекста
+	<-ctx.Done()
+
+	g.logger.Info("gateway.Run: context canceled")
+
+	if err := server.Shutdown(ctx); err != nil {
+		return fmt.Errorf("gateway.Run: failed to shutdown: %w", err)
 	}
+
+	g.logger.Info("gateway.Run: gateway server shutdown")
 
 	return nil
 }
