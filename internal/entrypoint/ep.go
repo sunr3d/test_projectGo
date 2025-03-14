@@ -55,7 +55,7 @@ func Run(cfg *config.Config, logger *zap.Logger) error {
 		}
 	}()
 
-	done := make(chan os.Signal)
+	done := make(chan os.Signal, 1)
 	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)
 
 	<-done
