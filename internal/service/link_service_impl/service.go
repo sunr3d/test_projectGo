@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-redis/redis/v8"
 
+	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
 
 	"link_service/internal/interfaces/infra"
