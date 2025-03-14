@@ -50,7 +50,7 @@ func (s *Server) Run() error {
 		return fmt.Errorf("failed to listen on address %s: %w\n", s.GRPCAddress, err)
 	}
 
-	s.logger.Info("server.Run: gRPC server started",
+	s.logger.Info("gRPC server started",
 		zap.String("address", s.GRPCAddress),
 	)
 
