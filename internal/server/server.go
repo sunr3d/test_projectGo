@@ -3,16 +3,16 @@ package server
 import (
 	"context"
 	"fmt"
-	"link_service/internal/config"
-	"link_service/internal/server/metrics"
 	"net"
 	"time"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
+	"link_service/internal/config"
 	"link_service/internal/interceptors"
 	"link_service/internal/server/gateway"
+	"link_service/internal/server/metrics"
 )
 
 type Server struct {
@@ -35,7 +35,7 @@ func New(logger *zap.Logger, cfg *config.Config) *Server {
 	return &Server{
 		GRPCAddress:    fmt.Sprintf("localhost:%s", cfg.GRPCPort),
 		HTTPAddress:    fmt.Sprintf("localhost:%s", cfg.HTTPPort),
-		PrometheusAddr: fmt.Sprintf("localhost:%s", cfg.Prometheus.Port),
+		PrometheusAddr: fmt.Sprintf("localhost:%s", cfg.PrometheusPort),
 		Server:         grpcServer,
 		logger:         logger,
 		ctx:            ctx,
