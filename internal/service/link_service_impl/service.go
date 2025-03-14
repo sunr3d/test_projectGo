@@ -27,6 +27,9 @@ func (s *service) Create(ctx context.Context, link services.InputLink) error {
 		return ErrLinkAlreadyExists
 	}
 	err = s.repo.Create(ctx, infra.InputLink(link))
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
