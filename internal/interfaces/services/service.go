@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-//go:generate go run github.com/vektra/mockery/v2@latest --name=Service --output=../../../mocks
+//go:generate go run github.com/vektra/mockery/v2@v2.53.2 --name=Service --output=../../../mocks
 type Service interface {
 	Create(ctx context.Context, link InputLink) error
 	Find(ctx context.Context, fakeLink string) (string, error)
