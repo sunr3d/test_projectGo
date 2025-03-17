@@ -9,4 +9,5 @@ type service struct {
 	logger *zap.Logger
 	repo   infra.Database
 	cache  infra.Cache
+	broker infra.Broker
 }
