@@ -12,12 +12,11 @@ import (
 
 type LinkService struct {
 	pb.UnimplementedLinkServiceServer
-	service     services.Service
-	kafkaWriter *kafka.Writer
+	service services.Service
 }
 
-func New(service services.Service, kafkaWriter *kafka.Writer) *LinkService {
-	return &LinkService{service: service, kafkaWriter: kafkaWriter}
+func New(service services.Service) *LinkService {
+	return &LinkService{service: service}
 }
 
 func (ls *LinkService) GetLink(ctx context.Context, req *pb.GetLinkRequest) (*pb.GetLinkResponse, error) {
@@ -49,7 +48,7 @@ func (ls *LinkService) AddMessage(ctx context.Context, req *pb.AddMessageRequest
 		Value: []byte(req.FakeLink),
 	}
 
-	err := ls.kafkaWriter.WriteMessages(ctx, msg)
+	err := ls.service.AddMessage(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
