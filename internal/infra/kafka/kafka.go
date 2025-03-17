@@ -2,10 +2,11 @@ package kafka_impl
 
 import (
 	"context"
-	"link_service/internal/interfaces/infra"
 
 	"github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
+
+	"link_service/internal/interfaces/infra"
 )
 
 var _ infra.Broker = (*Kafka)(nil)
@@ -21,6 +22,7 @@ func New(log *zap.Logger, port string) infra.Broker {
 		Topic:    "link_service",
 		Balancer: &kafka.LeastBytes{},
 	}
+	log.Info("Connect to Kafka success")
 
 	return &Kafka{Writer: &writer, Logger: log}
 }
