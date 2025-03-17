@@ -3,6 +3,7 @@ package link_service_handler
 import (
 	"context"
 
+	"github.com/segmentio/kafka-go"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"link_service/internal/interfaces/services"
@@ -11,11 +12,12 @@ import (
 
 type LinkService struct {
 	pb.UnimplementedLinkServiceServer
-	service services.Service
+	service     services.Service
+	kafkaWriter *kafka.Writer
 }
 
-func New(service services.Service) *LinkService {
-	return &LinkService{service: service}
+func New(service services.Service, kafkaWriter *kafka.Writer) *LinkService {
+	return &LinkService{service: service, kafkaWriter: kafkaWriter}
 }
 
 func (ls *LinkService) GetLink(ctx context.Context, req *pb.GetLinkRequest) (*pb.GetLinkResponse, error) {
@@ -34,6 +36,20 @@ func (ls *LinkService) InputLink(ctx context.Context, req *pb.InputLinkRequest) 
 	}
 
 	err := ls.service.Create(ctx, inputLink)
+	if err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (ls *LinkService) AddToKafka(ctx context.Context, req *pb.AddToKafkaRequest) (*emptypb.Empty, error) {
+	msg := kafka.Message{
+		Key:   []byte(req.Link),
+		Value: []byte(req.FakeLink),
+	}
+
+	err := ls.kafkaWriter.WriteMessages(ctx, msg)
 	if err != nil {
 		return nil, err
 	}

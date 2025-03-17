@@ -20,6 +20,12 @@ service LinkService {
       body: "*"
     };
   }
+  rpc AddToKafka(AddToKafkaRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/kafka"
+      body: "*"
+    };
+  }
 }
 
 message GetLinkRequest {
@@ -34,4 +40,9 @@ message InputLinkRequest {
   string link = 1;
   string fakeLink = 2;
   google.protobuf.Timestamp eraseTime = 3;
+}
+
+message AddToKafkaRequest {
+  string link = 1;
+  string fakeLink = 2;
 }
