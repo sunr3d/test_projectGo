@@ -13,6 +13,7 @@ import (
 	"link_service/internal/config"
 	hh "link_service/internal/handlers/health"
 	lsh "link_service/internal/handlers/link_service"
+	kafka_impl "link_service/internal/infra/kafka"
 	postgres_impl "link_service/internal/infra/postgres/link"
 	redis_impl "link_service/internal/infra/redis"
 	"link_service/internal/server"
@@ -34,8 +35,11 @@ func Run(cfg *config.Config, logger *zap.Logger) error {
 		return fmt.Errorf("create redis link service: %w", err)
 	}
 
+	// Коннект к Кафке по данным из конфига
+	kafkaWriter := kafka_impl.New(logger, cfg.KafkaPort)
+
 	/// Сервисный слой
-	svc := link_service_impl.New(logger, pg, rd)
+	svc := link_service_impl.New(logger, pg, rd, kafkaWriter)
 
 	grpcServer := server.New(logger, cfg)
 	reflection.Register(grpcServer.Server) // reflection для теста ручек через `grpcurl` в терминале
