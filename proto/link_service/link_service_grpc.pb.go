@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	LinkService_GetLink_FullMethodName    = "/link_service.LinkService/GetLink"
 	LinkService_InputLink_FullMethodName  = "/link_service.LinkService/InputLink"
-	LinkService_AddToKafka_FullMethodName = "/link_service.LinkService/AddToKafka"
+	LinkService_AddMessage_FullMethodName = "/link_service.LinkService/AddMessage"
 )
 
 // LinkServiceClient is the client API for LinkService service.
@@ -31,7 +31,7 @@ const (
 type LinkServiceClient interface {
 	GetLink(ctx context.Context, in *GetLinkRequest, opts ...grpc.CallOption) (*GetLinkResponse, error)
 	InputLink(ctx context.Context, in *InputLinkRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	AddToKafka(ctx context.Context, in *AddToKafkaRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AddMessage(ctx context.Context, in *AddMessageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type linkServiceClient struct {
@@ -62,10 +62,10 @@ func (c *linkServiceClient) InputLink(ctx context.Context, in *InputLinkRequest,
 	return out, nil
 }
 
-func (c *linkServiceClient) AddToKafka(ctx context.Context, in *AddToKafkaRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *linkServiceClient) AddMessage(ctx context.Context, in *AddMessageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, LinkService_AddToKafka_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, LinkService_AddMessage_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (c *linkServiceClient) AddToKafka(ctx context.Context, in *AddToKafkaReques
 type LinkServiceServer interface {
 	GetLink(context.Context, *GetLinkRequest) (*GetLinkResponse, error)
 	InputLink(context.Context, *InputLinkRequest) (*emptypb.Empty, error)
-	AddToKafka(context.Context, *AddToKafkaRequest) (*emptypb.Empty, error)
+	AddMessage(context.Context, *AddMessageRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedLinkServiceServer should be embedded to have
@@ -94,8 +94,8 @@ func (UnimplementedLinkServiceServer) GetLink(context.Context, *GetLinkRequest) 
 func (UnimplementedLinkServiceServer) InputLink(context.Context, *InputLinkRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InputLink not implemented")
 }
-func (UnimplementedLinkServiceServer) AddToKafka(context.Context, *AddToKafkaRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddToKafka not implemented")
+func (UnimplementedLinkServiceServer) AddMessage(context.Context, *AddMessageRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddMessage not implemented")
 }
 func (UnimplementedLinkServiceServer) testEmbeddedByValue() {}
 
@@ -153,20 +153,20 @@ func _LinkService_InputLink_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _LinkService_AddToKafka_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddToKafkaRequest)
+func _LinkService_AddMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddMessageRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(LinkServiceServer).AddToKafka(ctx, in)
+		return srv.(LinkServiceServer).AddMessage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: LinkService_AddToKafka_FullMethodName,
+		FullMethod: LinkService_AddMessage_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LinkServiceServer).AddToKafka(ctx, req.(*AddToKafkaRequest))
+		return srv.(LinkServiceServer).AddMessage(ctx, req.(*AddMessageRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -187,8 +187,8 @@ var LinkService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _LinkService_InputLink_Handler,
 		},
 		{
-			MethodName: "AddToKafka",
-			Handler:    _LinkService_AddToKafka_Handler,
+			MethodName: "AddMessage",
+			Handler:    _LinkService_AddMessage_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

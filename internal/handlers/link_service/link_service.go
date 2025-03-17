@@ -43,7 +43,7 @@ func (ls *LinkService) InputLink(ctx context.Context, req *pb.InputLinkRequest) 
 	return &emptypb.Empty{}, nil
 }
 
-func (ls *LinkService) AddToKafka(ctx context.Context, req *pb.AddToKafkaRequest) (*emptypb.Empty, error) {
+func (ls *LinkService) AddMessage(ctx context.Context, req *pb.AddMessageRequest) (*emptypb.Empty, error) {
 	msg := kafka.Message{
 		Key:   []byte(req.Link),
 		Value: []byte(req.FakeLink),
