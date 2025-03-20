@@ -24,13 +24,13 @@ import (
 func Run(cfg *config.Config, logger *zap.Logger) error {
 	/// Слой репозиториев (infra)
 	// Коннект к БД Постгрес по данным из конфига
-	pg, err := postgres_impl.New(logger, cfg.Postgres)
+	postgresRepo, err := postgres_impl.New(logger, cfg.Postgres)
 	if err != nil {
 		return fmt.Errorf("create postgres link service: %w", err)
 	}
 
 	// Коннект к Редису (как кэш БД) по данным из конфига
-	rd, err := redis_impl.New(logger, cfg.Redis)
+	redisRepo, err := redis_impl.New(logger, cfg.Redis)
 	if err != nil {
 		return fmt.Errorf("create redis link service: %w", err)
 	}
@@ -39,7 +39,7 @@ func Run(cfg *config.Config, logger *zap.Logger) error {
 	kafkaWriter := kafka_impl.New(logger, cfg.KafkaPort)
 
 	/// Сервисный слой
-	svc := link_service_impl.New(logger, pg, rd, kafkaWriter)
+	svc := link_service_impl.New(logger, postgresRepo, redisRepo, kafkaWriter)
 
 	grpcServer := server.New(logger, cfg)
 	reflection.Register(grpcServer.Server) // reflection для теста ручек через `grpcurl` в терминале

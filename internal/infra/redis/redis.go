@@ -18,7 +18,7 @@ type RedisDB struct {
 	Client *redis.Client
 }
 
-func New(lg *zap.Logger, cfg config.Redis) (*RedisDB, error) {
+func New(log *zap.Logger, cfg config.Redis) (*RedisDB, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     cfg.Addr,
 		Password: cfg.Password,
@@ -29,9 +29,9 @@ func New(lg *zap.Logger, cfg config.Redis) (*RedisDB, error) {
 		return nil, err
 	}
 
-	lg.Info("Connect to Redis database success")
+	log.Info("Connect to Redis database success")
 
-	return &RedisDB{Logger: lg, Client: client}, nil
+	return &RedisDB{Logger: log, Client: client}, nil
 }
 
 func (r *RedisDB) Close() error {

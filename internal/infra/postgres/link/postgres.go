@@ -23,7 +23,7 @@ type PostgresDB struct {
 }
 
 // New Инициализация БД с проверкой соединения (конструктор)
-func New(lg *zap.Logger, cfg config.Postgres) (infra.Database, error) {
+func New(log *zap.Logger, cfg config.Postgres) (infra.Database, error) {
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		cfg.Host,
 		cfg.Port,
@@ -32,17 +32,17 @@ func New(lg *zap.Logger, cfg config.Postgres) (infra.Database, error) {
 		cfg.Database,
 	)
 
-	db, err := sql.Open("postgres", dsn)
+	database, err := sql.Open("postgres", dsn)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	if err = db.Ping(); err != nil {
+	if err = database.Ping(); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	lg.Info("Connect to Postgres database success")
+	log.Info("Connect to Postgres database success")
 
-	return &PostgresDB{Logger: lg, Db: db}, nil
+	return &PostgresDB{Logger: log, Db: database}, nil
 }
 
 func (p *PostgresDB) Close() error {
