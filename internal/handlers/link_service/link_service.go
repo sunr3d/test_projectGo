@@ -10,8 +10,6 @@ import (
 	pb "link_service/proto/link_service"
 )
 
-var linkTopic = "link_service"
-
 type LinkService struct {
 	pb.UnimplementedLinkServiceServer
 	service services.Service
@@ -46,7 +44,6 @@ func (ls *LinkService) InputLink(ctx context.Context, req *pb.InputLinkRequest) 
 
 func (ls *LinkService) AddMessage(ctx context.Context, req *pb.AddMessageRequest) (*emptypb.Empty, error) {
 	msg := kafka.Message{
-		Topic: linkTopic,
 		Key:   []byte(req.GetLink()),
 		Value: []byte(req.GetFakeLink()),
 	}
