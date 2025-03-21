@@ -22,14 +22,14 @@ func New(logger *zap.Logger, repo infra.Database, cache infra.Cache, broker infr
 func (s *service) Create(ctx context.Context, link services.InputLink) error {
 	linkFound, err := s.repo.Find(ctx, link.FakeLink)
 	if err != nil {
-		return err
+		return fmt.Errorf("repo.Find: %w", err)
 	}
 	if linkFound != nil {
 		return ErrLinkAlreadyExists
 	}
 	err = s.repo.Create(ctx, infra.InputLink(link))
 	if err != nil {
-		return err
+		return fmt.Errorf("repo.Create: %w", err)
 	}
 
 	return nil

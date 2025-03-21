@@ -10,6 +10,8 @@ import (
 	pb "link_service/proto/link_service"
 )
 
+var linkTopic = "link_service"
+
 type LinkService struct {
 	pb.UnimplementedLinkServiceServer
 	service services.Service
@@ -20,7 +22,7 @@ func New(service services.Service) *LinkService {
 }
 
 func (ls *LinkService) GetLink(ctx context.Context, req *pb.GetLinkRequest) (*pb.GetLinkResponse, error) {
-	link, err := ls.service.Find(ctx, req.Link)
+	link, err := ls.service.Find(ctx, req.GetLink())
 	if err != nil {
 		return &pb.GetLinkResponse{}, err
 	}
@@ -29,9 +31,9 @@ func (ls *LinkService) GetLink(ctx context.Context, req *pb.GetLinkRequest) (*pb
 
 func (ls *LinkService) InputLink(ctx context.Context, req *pb.InputLinkRequest) (*emptypb.Empty, error) {
 	inputLink := services.InputLink{
-		Link:      req.Link,
-		FakeLink:  req.FakeLink,
-		EraseTime: req.EraseTime.AsTime(),
+		Link:      req.GetLink(),
+		FakeLink:  req.GetFakeLink(),
+		EraseTime: req.GetEraseTime().AsTime(),
 	}
 
 	err := ls.service.Create(ctx, inputLink)
@@ -44,8 +46,9 @@ func (ls *LinkService) InputLink(ctx context.Context, req *pb.InputLinkRequest) 
 
 func (ls *LinkService) AddMessage(ctx context.Context, req *pb.AddMessageRequest) (*emptypb.Empty, error) {
 	msg := kafka.Message{
-		Key:   []byte(req.Link),
-		Value: []byte(req.FakeLink),
+		Topic: linkTopic,
+		Key:   []byte(req.GetLink()),
+		Value: []byte(req.GetFakeLink()),
 	}
 
 	err := ls.service.AddMessage(ctx, msg)

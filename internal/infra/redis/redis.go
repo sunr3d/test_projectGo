@@ -2,6 +2,7 @@ package redis_impl
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -26,7 +27,7 @@ func New(log *zap.Logger, cfg config.Redis) (*RedisDB, error) {
 	})
 
 	if _, err := client.Ping(context.Background()).Result(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("redis_impl.New: %w", err)
 	}
 
 	log.Info("Connect to Redis database success")
@@ -41,7 +42,7 @@ func (r *RedisDB) Close() error {
 func (r *RedisDB) Get(ctx context.Context, key string) (string, error) {
 	res, err := r.Client.Get(ctx, key).Result()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("redis.Get: %w", err)
 	}
 	return res, nil
 }

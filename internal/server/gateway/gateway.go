@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.uber.org/zap"
@@ -32,7 +33,11 @@ func (g *Gateway) Run(ctx context.Context, grpcAddress, httpAddress string) erro
 		return fmt.Errorf("gateway.Run, failed to register handler: %w", err)
 	}
 
-	server := &http.Server{Addr: httpAddress, Handler: mux}
+	server := &http.Server{
+		Addr:              httpAddress,
+		Handler:           mux,
+		ReadHeaderTimeout: 5 * time.Second,
+	}
 
 	go func() {
 		g.logger.Info("gateway.Run: Gateway HTTP server started", zap.String("address", httpAddress))
@@ -42,7 +47,7 @@ func (g *Gateway) Run(ctx context.Context, grpcAddress, httpAddress string) erro
 		}
 	}()
 
-	/// Блок остановки сервера по сигналу отмены контекста
+	/// Блок остановки сервера по сигналу отмены контекста.
 	<-ctx.Done()
 
 	g.logger.Info("gateway.Run: context canceled")

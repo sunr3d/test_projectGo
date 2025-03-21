@@ -33,9 +33,9 @@ func New(logger *zap.Logger, cfg *config.Config) *Server {
 	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(mtrInterceptor))
 
 	return &Server{
-		GRPCAddress:    fmt.Sprintf("localhost:%s", cfg.GRPCPort),
-		HTTPAddress:    fmt.Sprintf("localhost:%s", cfg.HTTPPort),
-		PrometheusAddr: fmt.Sprintf("localhost:%s", cfg.PrometheusPort),
+		GRPCAddress:    "localhost:" + cfg.GRPCPort,
+		HTTPAddress:    "localhost:" + cfg.HTTPPort,
+		PrometheusAddr: "localhost:" + cfg.PrometheusPort,
 		Server:         grpcServer,
 		logger:         logger,
 		ctx:            ctx,
@@ -47,7 +47,7 @@ func New(logger *zap.Logger, cfg *config.Config) *Server {
 func (s *Server) Run() error {
 	listener, err := net.Listen("tcp", s.GRPCAddress)
 	if err != nil {
-		return fmt.Errorf("failed to listen on address %s: %w\n", s.GRPCAddress, err)
+		return fmt.Errorf("failed to listen on address %s: %w", s.GRPCAddress, err)
 	}
 
 	s.logger.Info("gRPC server started",
@@ -68,8 +68,8 @@ func (s *Server) Run() error {
 
 	if s.GatewayEnable {
 		go func() {
-			gw := gateway.New(s.logger)
-			if err = gw.Run(s.ctx, s.GRPCAddress, s.HTTPAddress); err != nil {
+			gtw := gateway.New(s.logger)
+			if err = gtw.Run(s.ctx, s.GRPCAddress, s.HTTPAddress); err != nil {
 				s.logger.Error("server.Run: ", zap.Error(err))
 			}
 		}()
