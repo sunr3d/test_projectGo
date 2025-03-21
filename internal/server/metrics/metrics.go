@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -12,7 +13,7 @@ import (
 )
 
 var (
-	// RequestCount Метрика для сбора количества запросов
+	// RequestCount Метрика для сбора количества запросов.
 	RequestCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "grpc_requests_total",           // Название метрики
@@ -21,7 +22,7 @@ var (
 		[]string{"method"},
 	)
 
-	// RequestDuration Метрика для сбора времени выполнения запросов в секундах
+	// RequestDuration Метрика для сбора времени выполнения запросов в секундах.
 	RequestDuration = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name:    "grpc_request_duration_seconds", // Название метрики
@@ -31,7 +32,7 @@ var (
 		[]string{"method"},
 	)
 
-	// ErrorCount Метрика для сбора количества ошибок
+	// ErrorCount Метрика для сбора количества ошибок.
 	ErrorCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "grpc_errors_total",                         // Название метрики
@@ -70,7 +71,10 @@ func (m *Metrics) Init() error {
 func (m *Metrics) Run(ctx context.Context, addr string) error {
 	http.Handle("/metrics", promhttp.Handler())
 
-	server := &http.Server{Addr: addr}
+	server := &http.Server{
+		Addr:              addr,
+		ReadHeaderTimeout: 5 * time.Second,
+	}
 
 	go func() {
 		m.logger.Info("metrics.Run: metrics server started", zap.String("address", addr))
@@ -80,7 +84,7 @@ func (m *Metrics) Run(ctx context.Context, addr string) error {
 		}
 	}()
 
-	/// Блок остановки сервера по сигналу отмены контекста
+	/// Блок остановки сервера по сигналу отмены контекста.
 	<-ctx.Done()
 
 	m.logger.Info("metrics.Run: context canceled")

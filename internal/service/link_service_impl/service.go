@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
 
 	"link_service/internal/interfaces/infra"
@@ -14,21 +15,21 @@ import (
 
 var _ services.Service = (*service)(nil)
 
-func New(logger *zap.Logger, repo infra.Database, cache infra.Cache) services.Service {
-	return &service{logger: logger, repo: repo, cache: cache}
+func New(logger *zap.Logger, repo infra.Database, cache infra.Cache, broker infra.Broker) services.Service {
+	return &service{logger: logger, repo: repo, cache: cache, broker: broker}
 }
 
 func (s *service) Create(ctx context.Context, link services.InputLink) error {
 	linkFound, err := s.repo.Find(ctx, link.FakeLink)
 	if err != nil {
-		return err
+		return fmt.Errorf("repo.Find: %w", err)
 	}
 	if linkFound != nil {
 		return ErrLinkAlreadyExists
 	}
 	err = s.repo.Create(ctx, infra.InputLink(link))
 	if err != nil {
-		return err
+		return fmt.Errorf("repo.Create: %w", err)
 	}
 
 	return nil
@@ -65,4 +66,17 @@ func (s *service) Find(ctx context.Context, fakeLink string) (string, error) {
 	}()
 
 	return *link, nil
+}
+
+func (s *service) AddMessage(ctx context.Context, msg kafka.Message) error {
+	err := s.broker.Add(ctx, msg.Topic, msg.Key, msg.Value)
+	if err == nil {
+		s.logger.Debug(
+			"broker.Add: ",
+			zap.String("to topic", msg.Topic),
+			zap.ByteString("key", msg.Key),
+			zap.ByteString("value", msg.Value),
+		)
+	}
+	return err
 }

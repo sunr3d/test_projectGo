@@ -6,11 +6,8 @@ import (
 	"errors"
 	"fmt"
 
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // Постгрес драйвер
 	"go.uber.org/zap"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	"link_service/internal/config"
 	"link_service/internal/interfaces/infra"
 )
@@ -19,11 +16,11 @@ var _ infra.Database = (*PostgresDB)(nil)
 
 type PostgresDB struct {
 	Logger *zap.Logger
-	Db     *sql.DB
+	DB     *sql.DB
 }
 
-// New Инициализация БД с проверкой соединения (конструктор)
-func New(lg *zap.Logger, cfg config.Postgres) (infra.Database, error) {
+// New Инициализация БД с проверкой соединения (конструктор).
+func New(log *zap.Logger, cfg config.Postgres) (infra.Database, error) {
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		cfg.Host,
 		cfg.Port,
@@ -32,26 +29,26 @@ func New(lg *zap.Logger, cfg config.Postgres) (infra.Database, error) {
 		cfg.Database,
 	)
 
-	db, err := sql.Open("postgres", dsn)
+	database, err := sql.Open("postgres", dsn)
 	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+		return nil, fmt.Errorf("postgres_impl.New: %w", err)
 	}
 
-	if err = db.Ping(); err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+	if err = database.Ping(); err != nil {
+		return nil, fmt.Errorf("postgres_impl.New: %w", err)
 	}
-	lg.Info("Connect to Postgres database success")
+	log.Info("Connect to Postgres database success")
 
-	return &PostgresDB{Logger: lg, Db: db}, nil
+	return &PostgresDB{Logger: log, DB: database}, nil
 }
 
 func (p *PostgresDB) Close() error {
-	return p.Db.Close()
+	return p.DB.Close()
 }
 
 func (p *PostgresDB) Find(ctx context.Context, fakeLink string) (*string, error) {
 	var link string
-	stmt, err := p.Db.PrepareContext(ctx, "SELECT link FROM links WHERE fake_link = $1")
+	stmt, err := p.DB.PrepareContext(ctx, "SELECT link FROM links WHERE fake_link = $1")
 	if err != nil {
 		return nil, fmt.Errorf("prepare statement: %w", err)
 	}
@@ -69,7 +66,7 @@ func (p *PostgresDB) Find(ctx context.Context, fakeLink string) (*string, error)
 }
 
 func (p *PostgresDB) Create(ctx context.Context, link infra.InputLink) error {
-	stmt, err := p.Db.PrepareContext(ctx, "INSERT INTO links (link, fake_link, erase_time) VALUES ($1,$2,$3)")
+	stmt, err := p.DB.PrepareContext(ctx, "INSERT INTO links (link, fake_link, erase_time) VALUES ($1,$2,$3)")
 	if err != nil {
 		return fmt.Errorf("prepare statement: %w", err)
 	}
@@ -82,7 +79,7 @@ func (p *PostgresDB) Create(ctx context.Context, link infra.InputLink) error {
 		link.EraseTime,
 	)
 	if err != nil {
-		return status.Error(codes.Internal, err.Error())
+		return fmt.Errorf("exec statement: %w", err)
 	}
 
 	return nil
