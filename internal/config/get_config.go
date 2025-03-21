@@ -1,13 +1,14 @@
 package config
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 )
 
-// GetConfigFromEnv загружает конфигурации из .env.example файла и переменных окружения
+// GetConfigFromEnv загружает конфигурации из .env.example файла и переменных окружения.
 func GetConfigFromEnv() (*Config, error) {
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Не удалось загрузить .env файл: %s\n", err.Error())
@@ -17,7 +18,7 @@ func GetConfigFromEnv() (*Config, error) {
 	cfg := &Config{}
 	// Парсинг переменных окружения в структуру
 	if err := envconfig.Process("", cfg); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("config.GetConfigFromEnv: %w", err)
 	}
 
 	return cfg, nil
