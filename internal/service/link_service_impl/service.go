@@ -69,9 +69,14 @@ func (s *service) Find(ctx context.Context, fakeLink string) (string, error) {
 }
 
 func (s *service) AddMessage(ctx context.Context, msg kafka.Message) error {
-	err := s.broker.Add(ctx, msg.Topic, msg.Value)
+	err := s.broker.Add(ctx, msg.Topic, msg.Key, msg.Value)
 	if err == nil {
-		s.logger.Debug("broker.Add: ", zap.String("to topic", msg.Topic), zap.ByteString("value", msg.Value))
+		s.logger.Debug(
+			"broker.Add: ",
+			zap.String("to topic", msg.Topic),
+			zap.ByteString("key", msg.Key),
+			zap.ByteString("value", msg.Value),
+		)
 	}
 	return err
 }
