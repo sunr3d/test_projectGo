@@ -14,11 +14,6 @@ import (
 
 var _ infra.Cache = (*RedisDB)(nil)
 
-type RedisDB struct {
-	Logger *zap.Logger
-	Client *redis.Client
-}
-
 func New(log *zap.Logger, cfg config.Redis) (*RedisDB, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     cfg.Addr,
