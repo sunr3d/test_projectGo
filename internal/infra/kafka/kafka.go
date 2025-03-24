@@ -38,8 +38,13 @@ func New(log *zap.Logger, port string) (infra.Broker, error) {
 	return &Kafka{Writer: &writer, Conn: conn, Logger: log}, nil
 }
 
-func (k *Kafka) Add(ctx context.Context, topic string, key []byte, message []byte) error {
-	return k.Writer.WriteMessages(ctx, kafka.Message{Topic: topic, Key: key, Value: message})
+func (k *Kafka) AddMsg(ctx context.Context, key []byte, message []byte) error {
+	err := k.Writer.WriteMessages(ctx, kafka.Message{Key: key, Value: message})
+	if err != nil {
+		return fmt.Errorf("kafka_impl.AddMsg: %w", err)
+	}
+	k.Logger.Debug("Add message to Kafka Success", zap.String("key", string(key)), zap.String("message", string(message)))
+	return nil
 }
 
 func (k *Kafka) Close() error {
