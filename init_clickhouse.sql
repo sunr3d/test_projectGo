@@ -1,4 +1,3 @@
 CREATE DATABASE IF NOT EXISTS testdb;
-CREATE USER IF NOT EXISTS test WITH PASSWORD 'test';
+CREATE USER test IDENTIFIED WITH plaintext_password BY 'test';
 GRANT ALL ON testdb.* TO test;
-
