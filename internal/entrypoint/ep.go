@@ -14,7 +14,7 @@ import (
 	hh "link_service/internal/handlers/health"
 	lsh "link_service/internal/handlers/link_service"
 	kafka_impl "link_service/internal/infra/kafka"
-	postgres_impl "link_service/internal/infra/postgres/link"
+	postgres_impl "link_service/internal/infra/postgres"
 	redis_impl "link_service/internal/infra/redis"
 	"link_service/internal/server"
 	"link_service/internal/service/link_service_impl"
