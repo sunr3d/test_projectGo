@@ -57,11 +57,11 @@ tasks:
 
 
   migrate-create:
-    desc: "Create a new SQL migration file. for example: 'task migrate:create NAME=new_migration' "
+    desc: "Create a new SQL migration file. for example: 'task migrate-create NAME=<new_migration>' "
     cmds:
       - |
         if [ -z "{{.NAME}}" ]; then
-          echo "Usage: task migration-create NAME=<migration_name>"
+          echo "Usage: task migrate-create NAME=<migration_name>"
         else
           cd migrations && goose create {{.NAME}} sql
         fi
