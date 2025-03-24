@@ -25,10 +25,20 @@ services:
 #    container_name: mg_redis
 #    ports:
 #      - "6379:6379"
-#    volumes:
-#      - redis-data:/data
 #    networks:
 #      - common-network
+
+# ClickHouse
+#  clickhouse:
+#    image: yandex/clickhouse-server
+#    container_name: clickhouse
+#    ports:
+#      - "8123:8123"
+#      - "9000:9000"
+#    networks:
+#      - common-network
+
+
 
   # Goose для миграций
 #  goose:
@@ -135,7 +145,7 @@ services:
 #      - REDIS_PORT=6379
 #      - KAFKA_PORT=9092
 #      - GRPC_PORT=50051
-#      - HTTP_PORT=8080
+#      - HTTP_PORT=80
 #      - GATEWAY_ENABLE=true
 #    ports:
 #      - "50051:50051"
