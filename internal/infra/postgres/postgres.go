@@ -1,11 +1,10 @@
-package postgres_impl
+package postgres
 
 import (
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
-
 	_ "github.com/lib/pq" // Постгрес драйвер
 	"go.uber.org/zap"
 
