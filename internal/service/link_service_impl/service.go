@@ -14,6 +14,13 @@ import (
 
 var _ services.Service = (*service)(nil)
 
+type service struct {
+	logger *zap.Logger
+	repo   infra.Database
+	cache  infra.Cache
+	broker infra.Broker
+}
+
 func New(logger *zap.Logger, repo infra.Database, cache infra.Cache, broker infra.Broker) services.Service {
 	return &service{logger: logger, repo: repo, cache: cache, broker: broker}
 }

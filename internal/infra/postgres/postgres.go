@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	_ "github.com/lib/pq" // Постгрес драйвер
 	"go.uber.org/zap"
 
@@ -13,6 +14,11 @@ import (
 )
 
 var _ infra.Database = (*PostgresDB)(nil)
+
+type PostgresDB struct {
+	Logger *zap.Logger
+	DB     *sql.DB
+}
 
 // New Инициализация БД с проверкой соединения (конструктор).
 func New(log *zap.Logger, cfg config.Postgres) (infra.Database, error) {

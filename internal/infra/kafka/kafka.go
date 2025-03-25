@@ -13,6 +13,12 @@ import (
 
 var _ infra.Broker = (*Kafka)(nil)
 
+type Kafka struct {
+	Writer *kafka.Writer
+	Conn   *kafka.Conn
+	Logger *zap.Logger
+}
+
 func New(log *zap.Logger, port string) (infra.Broker, error) {
 	writer := kafka.Writer{
 		Addr:     kafka.TCP("localhost:" + port),
