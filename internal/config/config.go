@@ -6,7 +6,7 @@ type Config struct {
 	GRPCPort       string   `envconfig:"GRPC_PORT" default:"50051"`
 	HTTPPort       string   `envconfig:"HTTP_PORT" default:"8080"`
 	PrometheusPort string   `envconfig:"PROMETHEUS_PORT" default:"9090"`
-	KafkaPort      string   `envconfig:"KAFKA_PORT" default:"9092"`
+	KafkaAddr      string   `envconfig:"KAFKA_ADDR" default:"localhost:9092"`
 	LogLevel       string   `envconfig:"LOG_LEVEL" default:"debug"`      // Уровень логирования
 	GatewayEnable  bool     `envconfig:"GATEWAY_ENABLE" default:"false"` // Флаг для включения HTTP-сервера
 	Postgres       Postgres `envconfig:"POSTGRES"`

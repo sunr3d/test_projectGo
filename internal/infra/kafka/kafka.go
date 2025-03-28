@@ -19,14 +19,14 @@ type Kafka struct {
 	Logger *zap.Logger
 }
 
-func New(log *zap.Logger, port string) (infra.Broker, error) {
+func New(log *zap.Logger, addr string) (infra.Broker, error) {
 	writer := kafka.Writer{
-		Addr:     kafka.TCP("localhost:" + port),
+		Addr:     kafka.TCP(addr),
 		Topic:    "link_service",
 		Balancer: &kafka.LeastBytes{},
 	}
 
-	conn, err := kafka.Dial("tcp", "localhost:"+port)
+	conn, err := kafka.Dial("tcp", addr)
 	if err != nil {
 		return nil, fmt.Errorf("kafka_impl.New: %w", err)
 	}

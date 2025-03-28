@@ -36,7 +36,7 @@ func Run(cfg *config.Config, logger *zap.Logger) error {
 	}
 
 	// Коннект к Кафке по данным из конфига
-	kafkaWriter, err := kafka_impl.New(logger, cfg.KafkaPort)
+	kafkaWriter, err := kafka_impl.New(logger, cfg.KafkaAddr)
 	if err != nil {
 		return fmt.Errorf("create kafka link service: %w", err)
 	}
