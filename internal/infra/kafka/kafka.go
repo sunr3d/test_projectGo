@@ -8,6 +8,7 @@ import (
 	"github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
 
+	"link_service/internal/config"
 	"link_service/internal/interfaces/infra"
 )
 
@@ -19,14 +20,14 @@ type Kafka struct {
 	Logger *zap.Logger
 }
 
-func New(log *zap.Logger, addr string) (infra.Broker, error) {
+func New(log *zap.Logger, cfg config.Kafka) (infra.Broker, error) {
 	writer := kafka.Writer{
-		Addr:     kafka.TCP(addr),
-		Topic:    "link_service",
+		Addr:     kafka.TCP(cfg.Addr),
+		Topic:    cfg.Topic,
 		Balancer: &kafka.LeastBytes{},
 	}
 
-	conn, err := kafka.Dial("tcp", addr)
+	conn, err := kafka.Dial("tcp", cfg.Addr)
 	if err != nil {
 		return nil, fmt.Errorf("kafka_impl.New: %w", err)
 	}

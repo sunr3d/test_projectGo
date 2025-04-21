@@ -18,7 +18,7 @@ func GetConfigFromEnv() (*Config, error) {
 	cfg := &Config{}
 	// Парсинг переменных окружения в структуру
 	if err := envconfig.Process("", cfg); err != nil {
-		return nil, fmt.Errorf("config.GetConfigFromEnv: %w", err)
+		return nil, fmt.Errorf("envconfig.Process: %w", err)
 	}
 
 	return cfg, nil
