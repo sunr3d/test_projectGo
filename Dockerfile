@@ -14,6 +14,12 @@ FROM alpine:3.21
 
 WORKDIR /app
 
+RUN adduser -D -g '' appuser
+
 COPY --from=builder /app/link_service .
+
+RUN chown -R appuser:appuser /app
+
+USER appuser
 
 CMD ["./link_service"]
