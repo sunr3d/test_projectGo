@@ -10,6 +10,7 @@ type Config struct {
 	GatewayEnable  bool     `envconfig:"GATEWAY_ENABLE" default:"false"` // Флаг для включения HTTP-сервера
 	Postgres       Postgres `envconfig:"POSTGRES"`
 	Redis          Redis    `envconfig:"REDIS"`
+	Kafka          Kafka    `envconfig:"KAFKA"`
 }
 
 type Postgres struct {
