@@ -32,11 +32,11 @@ func New(log *zap.Logger, cfg config.Postgres) (infra.Database, error) {
 
 	database, err := sql.Open("pgx", dsn)
 	if err != nil {
-		return nil, fmt.Errorf("postgres_impl.New: %w", err)
+		return nil, fmt.Errorf("sql.Open: %w", err)
 	}
 
 	if err = database.Ping(); err != nil {
-		return nil, fmt.Errorf("postgres_impl.New: %w", err)
+		return nil, fmt.Errorf("database.Ping: %w", err)
 	}
 	log.Info("Connect to Postgres database success")
 
@@ -51,7 +51,7 @@ func (p *PostgresDB) Find(ctx context.Context, fakeLink string) (*string, error)
 	var link string
 	stmt, err := p.DB.PrepareContext(ctx, "SELECT link FROM links WHERE fake_link = $1")
 	if err != nil {
-		return nil, fmt.Errorf("prepare statement: %w", err)
+		return nil, fmt.Errorf("posgres.DB.PrepareContext %w", err)
 	}
 	defer stmt.Close()
 
@@ -60,7 +60,7 @@ func (p *PostgresDB) Find(ctx context.Context, fakeLink string) (*string, error)
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("query row: %w", err)
+		return nil, fmt.Errorf("stmt.QueryRowContext: %w", err)
 	}
 
 	return &link, nil
@@ -69,7 +69,7 @@ func (p *PostgresDB) Find(ctx context.Context, fakeLink string) (*string, error)
 func (p *PostgresDB) Create(ctx context.Context, link infra.InputLink) error {
 	stmt, err := p.DB.PrepareContext(ctx, "INSERT INTO links (link, fake_link, erase_time) VALUES ($1,$2,$3)")
 	if err != nil {
-		return fmt.Errorf("prepare statement: %w", err)
+		return fmt.Errorf("p.DB.PrepareContext: %w", err)
 	}
 	defer stmt.Close()
 
@@ -80,7 +80,7 @@ func (p *PostgresDB) Create(ctx context.Context, link infra.InputLink) error {
 		link.EraseTime,
 	)
 	if err != nil {
-		return fmt.Errorf("exec statement: %w", err)
+		return fmt.Errorf("stmt.ExecContext: %w", err)
 	}
 
 	return nil

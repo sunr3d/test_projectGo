@@ -32,7 +32,7 @@ func (g *Gateway) Run(ctx context.Context, grpcAddress, httpAddress string) erro
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
 	if err := pbls.RegisterLinkServiceHandlerFromEndpoint(ctx, mux, grpcAddress, opts); err != nil {
-		return fmt.Errorf("gateway.Run, failed to register handler: %w", err)
+		return fmt.Errorf("pbls.RegisterLinkServiceHandlerFromEndpoint: %w", err)
 	}
 
 	server := &http.Server{
@@ -45,7 +45,7 @@ func (g *Gateway) Run(ctx context.Context, grpcAddress, httpAddress string) erro
 		g.logger.Info("gateway.Run: Gateway HTTP server started", zap.String("address", httpAddress))
 
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			g.logger.Error("gateway.Run: ", zap.Error(err))
+			g.logger.Error("server.ListenAndServe: ", zap.Error(err))
 		}
 	}()
 
@@ -55,7 +55,7 @@ func (g *Gateway) Run(ctx context.Context, grpcAddress, httpAddress string) erro
 	g.logger.Info("gateway.Run: context canceled")
 
 	if err := server.Shutdown(ctx); err != nil {
-		return fmt.Errorf("gateway.Run: failed to shutdown: %w", err)
+		return fmt.Errorf("server.Shutdown: %w", err)
 	}
 
 	g.logger.Info("gateway.Run: gateway server shutdown")

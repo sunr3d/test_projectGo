@@ -26,19 +26,19 @@ func Run(cfg *config.Config, logger *zap.Logger) error {
 	// Коннект к БД Постгрес по данным из конфига
 	postgresRepo, err := postgres_impl.New(logger, cfg.Postgres)
 	if err != nil {
-		return fmt.Errorf("create postgres link service: %w", err)
+		return fmt.Errorf("posgres_impl.New: %w", err)
 	}
 
 	// Коннект к Редису (как кэш БД) по данным из конфига
 	redisRepo, err := redis_impl.New(logger, cfg.Redis)
 	if err != nil {
-		return fmt.Errorf("create redis link service: %w", err)
+		return fmt.Errorf("redis_impl.New: %w", err)
 	}
 
 	// Коннект к Кафке по данным из конфига
 	kafkaWriter, err := kafka_impl.New(logger, cfg.Kafka)
 	if err != nil {
-		return fmt.Errorf("create kafka link service: %w", err)
+		return fmt.Errorf("kafka_impl.New: %w", err)
 	}
 
 	/// Сервисный слой
@@ -58,7 +58,7 @@ func Run(cfg *config.Config, logger *zap.Logger) error {
 	/// Запуск сервера
 	go func() {
 		if err = grpcServer.Run(); err != nil {
-			logger.Fatal("grpc server run error", zap.Error(err))
+			logger.Fatal("grpcServer.Run", zap.Error(err))
 		}
 	}()
 

@@ -47,7 +47,7 @@ func New(logger *zap.Logger, cfg *config.Config) *Server {
 func (s *Server) Run() error {
 	listener, err := net.Listen("tcp", s.GRPCAddress)
 	if err != nil {
-		return fmt.Errorf("failed to listen on address %s: %w", s.GRPCAddress, err)
+		return fmt.Errorf("net.Listen %s: %w", s.GRPCAddress, err)
 	}
 
 	s.logger.Info("gRPC server started",
@@ -57,12 +57,12 @@ func (s *Server) Run() error {
 	go func() {
 		mtr := metrics.New(s.logger)
 		if err = mtr.Init(); err != nil {
-			s.logger.Error("metrics.Init: ", zap.Error(err))
+			s.logger.Error("mtr.Init: ", zap.Error(err))
 			return
 		}
 
 		if err = mtr.Run(s.ctx, s.PrometheusAddr); err != nil {
-			s.logger.Error("metrics.Run: ", zap.Error(err))
+			s.logger.Error("mtr.Run: ", zap.Error(err))
 		}
 	}()
 
@@ -70,13 +70,13 @@ func (s *Server) Run() error {
 		go func() {
 			gtw := gateway.New(s.logger)
 			if err = gtw.Run(s.ctx, s.GRPCAddress, s.HTTPAddress); err != nil {
-				s.logger.Error("server.Run: ", zap.Error(err))
+				s.logger.Error("gtw.Run: ", zap.Error(err))
 			}
 		}()
 	}
 
 	if err = s.Server.Serve(listener); err != nil {
-		return fmt.Errorf("failed to serve: %w", err)
+		return fmt.Errorf("s.Server.Serve: %w", err)
 	}
 
 	return nil

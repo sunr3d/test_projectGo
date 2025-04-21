@@ -42,6 +42,8 @@ var (
 	)
 )
 
+const ReadHeaderTimeoutDuration = 5 * time.Second
+
 type Metrics struct {
 	logger *zap.Logger
 }
@@ -54,15 +56,15 @@ func New(logger *zap.Logger) *Metrics {
 
 func (m *Metrics) Init() error {
 	if err := prometheus.Register(RequestCount); err != nil {
-		return fmt.Errorf("metrics.Init: failed to register RequestCount: %w", err)
+		return fmt.Errorf("prometheus.Register: failed to register RequestCount: %w", err)
 	}
 
 	if err := prometheus.Register(RequestDuration); err != nil {
-		return fmt.Errorf("metrics.Init: failed to register RequestDuration: %w", err)
+		return fmt.Errorf("prometheus.Register: failed to register RequestDuration: %w", err)
 	}
 
 	if err := prometheus.Register(ErrorCount); err != nil {
-		return fmt.Errorf("metrics.Init: failed to register ErrorCount: %w", err)
+		return fmt.Errorf("prometheus.Register: failed to register ErrorCount: %w", err)
 	}
 
 	return nil
@@ -73,14 +75,14 @@ func (m *Metrics) Run(ctx context.Context, addr string) error {
 
 	server := &http.Server{
 		Addr:              addr,
-		ReadHeaderTimeout: 5 * time.Second,
+		ReadHeaderTimeout: ReadHeaderTimeoutDuration,
 	}
 
 	go func() {
 		m.logger.Info("metrics.Run: metrics server started", zap.String("address", addr))
 
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			m.logger.Error("metrics.Run: ", zap.Error(err))
+			m.logger.Error("server.ListenAndServe: ", zap.Error(err))
 		}
 	}()
 
@@ -90,7 +92,7 @@ func (m *Metrics) Run(ctx context.Context, addr string) error {
 	m.logger.Info("metrics.Run: context canceled")
 
 	if err := server.Shutdown(ctx); err != nil {
-		return fmt.Errorf("metrics.Run: failed to shutdown: %w", err)
+		return fmt.Errorf("server.Shutdown: %w", err)
 	}
 
 	m.logger.Info("metrics.Run: metrics server shutdown")
