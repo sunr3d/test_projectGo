@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	_ "github.com/lib/pq" // Постгрес драйвер
+	_ "github.com/jackc/pgx/v5/stdlib" // Постгрес драйвер
 	"go.uber.org/zap"
 
 	"link_service/internal/config"
@@ -30,7 +30,7 @@ func New(log *zap.Logger, cfg config.Postgres) (infra.Database, error) {
 		cfg.Database,
 	)
 
-	database, err := sql.Open("postgres", dsn)
+	database, err := sql.Open("pgx", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("postgres_impl.New: %w", err)
 	}
