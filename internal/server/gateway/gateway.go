@@ -25,6 +25,8 @@ func New(logger *zap.Logger) *Gateway {
 	}
 }
 
+const ReadHeaderTimeoutDuration = 5 * time.Second
+
 func (g *Gateway) Run(ctx context.Context, grpcAddress, httpAddress string) error {
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
@@ -36,7 +38,7 @@ func (g *Gateway) Run(ctx context.Context, grpcAddress, httpAddress string) erro
 	server := &http.Server{
 		Addr:              httpAddress,
 		Handler:           mux,
-		ReadHeaderTimeout: 5 * time.Second,
+		ReadHeaderTimeout: ReadHeaderTimeoutDuration,
 	}
 
 	go func() {
