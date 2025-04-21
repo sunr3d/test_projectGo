@@ -39,10 +39,12 @@ func (s *service) Create(ctx context.Context, link services.InputLink) error {
 		return fmt.Errorf("repo.Create: %w", err)
 	}
 
-	err = s.broker.AddMsg(ctx, []byte(link.FakeLink), []byte(link.Link))
-	if err != nil {
-		return fmt.Errorf("broker.Add: %w", err)
-	}
+	go func() {
+		if err = s.broker.AddMsg(context.WithoutCancel(ctx), []byte(link.FakeLink), []byte(link.Link)); err != nil {
+			s.logger.Error("broker.AddMsg err:", zap.Error(err))
+		}
+	}()
+
 	return nil
 }
 
