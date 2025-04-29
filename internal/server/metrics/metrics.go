@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -12,7 +13,7 @@ import (
 )
 
 var (
-	// RequestCount Метрика для сбора количества запросов
+	// RequestCount Метрика для сбора количества запросов.
 	RequestCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "grpc_requests_total",           // Название метрики
@@ -21,7 +22,7 @@ var (
 		[]string{"method"},
 	)
 
-	// RequestDuration Метрика для сбора времени выполнения запросов в секундах
+	// RequestDuration Метрика для сбора времени выполнения запросов в секундах.
 	RequestDuration = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name:    "grpc_request_duration_seconds", // Название метрики
@@ -31,7 +32,7 @@ var (
 		[]string{"method"},
 	)
 
-	// ErrorCount Метрика для сбора количества ошибок
+	// ErrorCount Метрика для сбора количества ошибок.
 	ErrorCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "grpc_errors_total",                         // Название метрики
@@ -40,6 +41,8 @@ var (
 		[]string{"method"},
 	)
 )
+
+const ReadHeaderTimeoutDuration = 5 * time.Second
 
 type Metrics struct {
 	logger *zap.Logger
@@ -53,15 +56,15 @@ func New(logger *zap.Logger) *Metrics {
 
 func (m *Metrics) Init() error {
 	if err := prometheus.Register(RequestCount); err != nil {
-		return fmt.Errorf("metrics.Init: failed to register RequestCount: %w", err)
+		return fmt.Errorf("prometheus.Register: failed to register RequestCount: %w", err)
 	}
 
 	if err := prometheus.Register(RequestDuration); err != nil {
-		return fmt.Errorf("metrics.Init: failed to register RequestDuration: %w", err)
+		return fmt.Errorf("prometheus.Register: failed to register RequestDuration: %w", err)
 	}
 
 	if err := prometheus.Register(ErrorCount); err != nil {
-		return fmt.Errorf("metrics.Init: failed to register ErrorCount: %w", err)
+		return fmt.Errorf("prometheus.Register: failed to register ErrorCount: %w", err)
 	}
 
 	return nil
@@ -70,23 +73,26 @@ func (m *Metrics) Init() error {
 func (m *Metrics) Run(ctx context.Context, addr string) error {
 	http.Handle("/metrics", promhttp.Handler())
 
-	server := &http.Server{Addr: addr}
+	server := &http.Server{
+		Addr:              addr,
+		ReadHeaderTimeout: ReadHeaderTimeoutDuration,
+	}
 
 	go func() {
 		m.logger.Info("metrics.Run: metrics server started", zap.String("address", addr))
 
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			m.logger.Error("metrics.Run: ", zap.Error(err))
+			m.logger.Error("server.ListenAndServe: ", zap.Error(err))
 		}
 	}()
 
-	/// Блок остановки сервера по сигналу отмены контекста
+	/// Блок остановки сервера по сигналу отмены контекста.
 	<-ctx.Done()
 
 	m.logger.Info("metrics.Run: context canceled")
 
 	if err := server.Shutdown(ctx); err != nil {
-		return fmt.Errorf("metrics.Run: failed to shutdown: %w", err)
+		return fmt.Errorf("server.Shutdown: %w", err)
 	}
 
 	m.logger.Info("metrics.Run: metrics server shutdown")

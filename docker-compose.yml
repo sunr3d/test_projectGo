@@ -1,51 +1,61 @@
-services:
-  # Postgres
-  postgres:
-    image: postgres:13.10-alpine
-    container_name: mg_postgres
-    ports:
-      - "5432:5432"
-    networks:
-      - common-network
-    environment:
-      - POSTGRES_PASSWORD=test
-      - POSTGRES_USER=test
-      - POSTGRES_DB=test
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U test"]
-      interval: 5s
-      timeout: 2s
-      retries: 10
+version: '3.8'
 
-  # Redis для кэширования
-  redis:
-    image: redis:latest
-    container_name: mg_redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-    networks:
-      - common_network
+services:
+#  # Postgres
+#  postgres:
+#    image: postgres:13.10-alpine
+#    container_name: mg_postgres
+#    ports:
+#      - "5432:5432"
+#    networks:
+#      - common-network
+#    environment:
+#      - POSTGRES_PASSWORD=test
+#      - POSTGRES_USER=test
+#      - POSTGRES_DB=testdb
+#    healthcheck:
+#      test: ["CMD-SHELL", "pg_isready -U test"]
+#      interval: 5s
+#      timeout: 2s
+#      retries: 10
+
+#  # Redis для кэширования
+#  redis:
+#    image: redis:latest
+#    container_name: mg_redis
+#    ports:
+#      - "6379:6379"
+#    networks:
+#      - common-network
+
+# ClickHouse
+#  clickhouse:
+#    image: yandex/clickhouse-server
+#    container_name: mg_clickhouse
+#    ports:
+#      - "8123:8123"
+#      - "9000:9000"
+#    networks:
+#      - common-network
 
   # Goose для миграций
-  goose:
-    image: stonys/goose-migrate
-    container_name: mg_service-goose
-    networks:
-      - common-network
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      - GOOSE_DRIVER=postgres
-      - GOOSE_DBSTRING=postgres://test:test@postgres:5432/test?sslmode=disable
-    volumes:
-      - ./migrations:/migrations
-    entrypoint: [ "/bin/sh", "-c", "goose -dir /migrations up" ]
+#  goose:
+#    image: stonys/goose-migrate
+#    container_name: mg_service-goose
+#    networks:
+#      - common-network
+#    depends_on:
+#      postgres:
+#        condition: service_healthy
+#    environment:
+#      - GOOSE_DRIVER=postgres
+#      - GOOSE_DBSTRING=postgres://test:test@postgres:5432/test?sslmode=disable
+#    volumes:
+#      - ./migrations:/migrations
+#    entrypoint: [ "/bin/sh", "-c", "goose -dir /migrations up" ]
 
 
-#  # Prometheus
+  # Prometheus
 #  prometheus:
 #    image: prom/prometheus
 #    container_name: prometheus
@@ -58,10 +68,40 @@ services:
 #    command:
 #      - '--config.file=/etc/prometheus/prometheus.yml'
 
+  # Kafka
+  kafka:
+    image: confluentinc/confluent-local:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,PLAINTEXT_HOST://0.0.0.0:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+    networks:
+      - common-network
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "8080:8080"
+    environment:
+      DYNAMIC_CONFIG_ENABLED: true
+      KAFKA_CLUSTERS_0_NAME: test
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    networks:
+      - common-network
+    volumes:
+      - ./kafka-ui-config.yml:/app/application.yml
+
 #  # Grafana
 #  grafana:
-#    image: grafana/grafana
 #    container_name: grafana
+#    image: grafana/grafana
 #    ports:
 #      - "3000:3000"
 #    networks:
@@ -83,19 +123,25 @@ services:
 #      - postgres
 #      - goose
 #      - redis
+#      - kafka
+#      - prometheus
 #    environment:
 #      - POSTGRES_HOST=postgres
 #      - POSTGRES_PORT=5432
 #      - POSTGRES_USER=test
 #      - POSTGRES_PASSWORD=test
 #      - POSTGRES_DB=testdb
-#      - REDIS_HOST=redis
-#      - REDIS_PORT=6379
+#      - REDIS_ADDR=redis:6379
+#      - REDIS_PASSWORD=
+#      - REDIS_DB=0
+#      - KAFKA_PORT=29092
+#      - PROMETHEUS_PORT=9090
 #      - GRPC_PORT=50051
-#      - GW_PORT=8080
+#      - HTTP_PORT=80
+#      - GATEWAY_ENABLE=true
 #    ports:
 #      - "50051:50051"
-#      - "8080:8080"
+#      - "80:80"
 
 networks:
   common-network:

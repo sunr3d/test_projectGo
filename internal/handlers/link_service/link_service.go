@@ -19,7 +19,7 @@ func New(service services.Service) *LinkService {
 }
 
 func (ls *LinkService) GetLink(ctx context.Context, req *pb.GetLinkRequest) (*pb.GetLinkResponse, error) {
-	link, err := ls.service.Find(ctx, req.Link)
+	link, err := ls.service.Find(ctx, req.GetLink())
 	if err != nil {
 		return &pb.GetLinkResponse{}, err
 	}
@@ -28,9 +28,9 @@ func (ls *LinkService) GetLink(ctx context.Context, req *pb.GetLinkRequest) (*pb
 
 func (ls *LinkService) InputLink(ctx context.Context, req *pb.InputLinkRequest) (*emptypb.Empty, error) {
 	inputLink := services.InputLink{
-		Link:      req.Link,
-		FakeLink:  req.FakeLink,
-		EraseTime: req.EraseTime.AsTime(),
+		Link:      req.GetLink(),
+		FakeLink:  req.GetFakeLink(),
+		EraseTime: req.GetEraseTime().AsTime(),
 	}
 
 	err := ls.service.Create(ctx, inputLink)

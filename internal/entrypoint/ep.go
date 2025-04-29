@@ -13,7 +13,8 @@ import (
 	"link_service/internal/config"
 	hh "link_service/internal/handlers/health"
 	lsh "link_service/internal/handlers/link_service"
-	postgres_impl "link_service/internal/infra/postgres/link"
+	kafka_impl "link_service/internal/infra/kafka"
+	postgres_impl "link_service/internal/infra/postgres"
 	redis_impl "link_service/internal/infra/redis"
 	"link_service/internal/server"
 	"link_service/internal/service/link_service_impl"
@@ -23,19 +24,25 @@ import (
 func Run(cfg *config.Config, logger *zap.Logger) error {
 	/// Слой репозиториев (infra)
 	// Коннект к БД Постгрес по данным из конфига
-	pg, err := postgres_impl.New(logger, cfg.Postgres)
+	postgresRepo, err := postgres_impl.New(logger, cfg.Postgres)
 	if err != nil {
-		return fmt.Errorf("create postgres link service: %w", err)
+		return fmt.Errorf("posgres_impl.New: %w", err)
 	}
 
 	// Коннект к Редису (как кэш БД) по данным из конфига
-	rd, err := redis_impl.New(logger, cfg.Redis)
+	redisRepo, err := redis_impl.New(logger, cfg.Redis)
 	if err != nil {
-		return fmt.Errorf("create redis link service: %w", err)
+		return fmt.Errorf("redis_impl.New: %w", err)
+	}
+
+	// Коннект к Кафке по данным из конфига
+	kafkaWriter, err := kafka_impl.New(logger, cfg.Kafka)
+	if err != nil {
+		return fmt.Errorf("kafka_impl.New: %w", err)
 	}
 
 	/// Сервисный слой
-	svc := link_service_impl.New(logger, pg, rd)
+	svc := link_service_impl.New(logger, postgresRepo, redisRepo, kafkaWriter)
 
 	grpcServer := server.New(logger, cfg)
 	reflection.Register(grpcServer.Server) // reflection для теста ручек через `grpcurl` в терминале
@@ -51,7 +58,7 @@ func Run(cfg *config.Config, logger *zap.Logger) error {
 	/// Запуск сервера
 	go func() {
 		if err = grpcServer.Run(); err != nil {
-			logger.Fatal("grpc server run error", zap.Error(err))
+			logger.Fatal("grpcServer.Run", zap.Error(err))
 		}
 	}()
 
