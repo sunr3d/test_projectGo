@@ -15,7 +15,6 @@
 - Кеширование в Redis для быстрого доступа
 - gRPC Gateway для поддержки HTTP/JSON
 - Метрики Prometheus на ручках
-- JWT-авторизация через интерсептор
 - Ручка-продюсер в Kafka и консюмер, пишущий в ClickHouse
 
 ## Структура проекта
@@ -39,7 +38,6 @@
 - Docker и Docker Compose
 - Prometheus
 - Goose (миграции БД)
-- JWT
 
 ## Быстрый старт
 
